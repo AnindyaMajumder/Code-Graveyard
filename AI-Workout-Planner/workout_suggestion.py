@@ -33,6 +33,10 @@ def format_exercises_data(data, indent=0):
     return formatted_string
 
 def workout_suggestion(
+        height: str,
+        weight: str,
+        age: str,
+        gender: str,
         fitness_level: str,
         event: str,
         injuries: str,
@@ -68,7 +72,7 @@ def workout_suggestion(
                 "content": [
                     {
                         "type": "input_text",
-                        "text": f"Here are my preferences and goals: Fitness Level: {fitness_level}; Specific Timeline or Event: {event}; Current Injuries or Physical Limitations: {injuries}; Chronic health conditions: {health_conditions}; Cleared by a doctor to exercise if you have health conditions or injuries: {doctor_cleared}; Days per week can you realistically commit to working out: {days_per_week}; Per workout session duration: {session_duration} minutes; Primary training environment: {training_environment}; Access to equipment: {equipment_access}; Preferred training style: {training_style}; Physical activeness level: {activeness_level}; Things that keep me motivated: {motivation_factors};"
+                        "text": f"Here are my preferences and goals: Height: {height}; Weight: {weight}; Age: {age}; Gender: {gender}; Fitness Level: {fitness_level}; Specific Timeline or Event: {event}; Current Injuries or Physical Limitations: {injuries}; Chronic health conditions: {health_conditions}; Cleared by a doctor to exercise if you have health conditions or injuries: {doctor_cleared}; Days per week can you realistically commit to working out: {days_per_week}; Per workout session duration: {session_duration} minutes; Primary training environment: {training_environment}; Access to equipment: {equipment_access}; Preferred training style: {training_style}; Physical activeness level: {activeness_level}; Things that keep me motivated: {motivation_factors};"
                     }
                 ]
             }
@@ -83,6 +87,10 @@ with open("data/BASE_DATOS.json", "r", encoding="utf-8") as f:
     exercises_data = json.load(f)  # Load the JSON file
 
 workout_plan = workout_suggestion(
+    height="180 cm",
+    weight="75 kg",
+    age="28",
+    gender="Male",
     fitness_level="Intermediate",
     event="Build muscle and improve cardiovascular health",
     injuries="None",
