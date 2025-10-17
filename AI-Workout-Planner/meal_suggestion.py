@@ -69,7 +69,7 @@ def meal_suggestion(
                         "text": f"Here are my details: height: {height}; weight: {weight}; age: {age}; gender: {gender}; fitness Level: {level}; specific goals or events: {event}; injuries: {injuries}; Medical Conditions: {medical_conditions}; Doctor Cleared: {doctor_cleared}; training Environment: {environment}; training Style: {style}; activeness Level: {activeness}; Dietary Preferences: {preferences}; Food Allergies: {allergies}; Skipped Meals: {skipped}; Meal Frequency: {frequency}"
                     }
                 ]
-            }
+            }   
         ],
         reasoning={"effort": "high"}
     )
