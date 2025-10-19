@@ -14,6 +14,7 @@ workflow.add_edge(START, "model")
 memory = MemorySaver()
 app = workflow.compile(checkpointer=memory)
 
+# Use a unique thread ID for each session
 thread_id = str(uuid.uuid4())
 
 all_messages = [SystemMessage(content="You are a helpful assistant. Answer all questions to the best of your ability.")]
@@ -33,4 +34,4 @@ while True:
 
     print("AI:", result["messages"][-1].content)
 
-print(all_messages)
+print(thread_id, all_messages)

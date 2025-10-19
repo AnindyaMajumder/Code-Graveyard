@@ -121,4 +121,5 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.5.0
 xxhash==3.6.0
-zstandard==0.25.0
+langchain-chroma==0.1.4
+chromadb==0.5.15

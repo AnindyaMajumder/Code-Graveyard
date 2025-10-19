@@ -210,3 +210,5 @@ index/
 *.pkl
 *.faiss
 output_audio.wav
+test.json
+colwords_vector_store/
