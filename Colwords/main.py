@@ -2,6 +2,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from chat import call_model
+import uuid
 
 workflow = StateGraph(state_schema=MessagesState)
 
@@ -12,6 +13,8 @@ workflow.add_edge(START, "model")
 # Add simple in-memory checkpointer
 memory = MemorySaver()
 app = workflow.compile(checkpointer=memory)
+
+thread_id = str(uuid.uuid4())
 
 all_messages = [SystemMessage(content="You are a helpful assistant. Answer all questions to the best of your ability.")]
 
@@ -24,8 +27,10 @@ while True:
     
     result = app.invoke(
         {"messages": all_messages},
-        config={"configurable": {"thread_id": "1"}},
+        config={"configurable": {"thread_id": thread_id}},
     )
     all_messages.append(AIMessage(content=result["messages"][-1].content))
 
     print("AI:", result["messages"][-1].content)
+
+print(all_messages)
