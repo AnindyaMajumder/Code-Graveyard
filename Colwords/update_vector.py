@@ -46,5 +46,11 @@ def update_vector_store():
     else:
         print("No data to update vector store")
 
-update_vector_store()
-    
+def retriever(query: str, k: int = 5):
+    retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": k})
+    results = retriever.invoke(query)
+    print(results)
+    return results
+
+# update_vector_store()
+retriever("Your question was outstanding")
