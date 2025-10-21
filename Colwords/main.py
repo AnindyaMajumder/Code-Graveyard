@@ -1,14 +1,16 @@
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-from chat import call_model
 import uuid
+
+from gen_models import chat
+from flashcards import flashcard
 
 workflow = StateGraph(state_schema=MessagesState)
 
 # Define the node and edge
-workflow.add_node("model", call_model)
-workflow.add_edge(START, "model")
+workflow.add_node("chatbot", chat)
+workflow.add_edge(START, "chatbot")
 
 # Add simple in-memory checkpointer
 memory = MemorySaver()
@@ -24,6 +26,10 @@ while True:
     if( inp.lower() in ["exit", "quit"]):
         break
     
+    if(inp.lower() == "Generate flashcards"):
+        last_5_messages = "\n".join([msg.content for msg in all_messages[1:][-5:]])
+        flashcard(last_5_messages)
+    
     all_messages.append(HumanMessage(content=inp))
     
     result = app.invoke(
@@ -34,4 +40,6 @@ while True:
 
     print("AI:", result["messages"][-1].content)
 
-print(thread_id, all_messages)
+# print(thread_id, all_messages)
+print("Last 5 messages:")
+print(type(all_messages[1:][-5:]))
