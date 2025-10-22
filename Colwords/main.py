@@ -5,6 +5,7 @@ import uuid
 
 from gen_models import chat
 from flashcards import flashcard
+from quizzes import quiz
 
 workflow = StateGraph(state_schema=MessagesState)
 
@@ -26,12 +27,18 @@ while True:
     if( inp.lower() in ["exit", "quit"]):
         break
     
+    all_messages.append(HumanMessage(content=inp))
+    
     if(inp.lower() == "Generate flashcards"):
         last_5_messages = "\n".join([msg.content for msg in all_messages[1:][-5:]])
         flashcard(last_5_messages)
-    
-    all_messages.append(HumanMessage(content=inp))
-    
+        break
+
+    if(inp.lower() == "Generate quiz"):
+        last_5_messages = "\n".join([msg.content for msg in all_messages[1:][-5:]])
+        quiz(last_5_messages)
+        break
+
     result = app.invoke(
         {"messages": all_messages},
         config={"configurable": {"thread_id": thread_id}},
