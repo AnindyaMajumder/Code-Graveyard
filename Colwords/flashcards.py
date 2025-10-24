@@ -30,7 +30,7 @@ def image_generator(sentence: str):
         if part.text is not None:
             continue
         elif part.inline_data is not None:
-            return type(part.inline_data.data)
+            return part.inline_data.data
             
 # Define the function that calls the model
 def flashcard(query: str):
