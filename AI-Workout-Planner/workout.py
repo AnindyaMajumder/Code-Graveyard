@@ -7,7 +7,8 @@ import json
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
-model = ChatOpenAI(model="gpt-5-nano", api_key=api_key, reasoning={"effort": "high"})
+model = ChatOpenAI(model="gpt-5-nano", api_key=api_key, reasoning={"effort": "minimal"})
+# minimal=7, low=15, medium=35, high=100
 
 def format_exercises_data(data, indent=0):
     exercises_data = ""
