@@ -1,4 +1,5 @@
 from langchain.chat_models import init_chat_model
+from langchain_core.messages import SystemMessage
 from langgraph.graph import StateGraph, MessagesState, START
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver  
 import uuid
@@ -11,14 +12,15 @@ api_key = os.getenv("OPENAI_API_KEY")
 
 model = init_chat_model(model="gpt-3.5-turbo", api_key=api_key)
 
-DB_URI = "postgresql://postgres:123456@localhost:5432/postgres?sslmode=disable"
+DB_URI = os.getenv("DB_URI")
 
 async def chat(thread_id: str, user_message: str):
     async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:  
         await checkpointer.setup()
 
         async def call_model(state: MessagesState):
-            response = await model.ainvoke(state["messages"])
+            system_msg = SystemMessage("You are a fitness expert specializing in creating personalized workout and meal plans. Provide suggestions based on user preferences, fitness levels, and goals. Don't include any out of the context information. Be concise and to the point.")
+            response = await model.ainvoke([system_msg] + state["messages"])
             return {"messages": response}
 
         builder = StateGraph(MessagesState)
@@ -33,17 +35,17 @@ async def chat(thread_id: str, user_message: str):
             }
         }
         
+        messages = []
         async for chunk in graph.astream(
             {"messages": [{"role": "user", "content": user_message}]},
             config,  
             stream_mode="values"
         ):
-            chunk["messages"][-1].pretty_print()
+            messages = chunk["messages"]
+        
+        return messages[-1] if messages else None
         
 if __name__ == "__main__":
-    # import asyncio
-    # asyncio.run(chat(thread_id="1", user_message="Hello, I'm Bob!"))  
-    
     import asyncio
     import sys
 
@@ -52,12 +54,13 @@ if __name__ == "__main__":
     print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
     try:
         while True:
-            user_input = input("\n> ").strip()
+            user_input = input("Human> ").strip()
             if user_input.lower() in ("quit", "exit", "q"):
                 print("Goodbye!")
                 break
             if user_input:
-                asyncio.run(chat(thread_id=thread_id, user_message=user_input))
+                response = asyncio.run(chat(thread_id=thread_id, user_message=user_input))
+                print(f"AI > {response.content}")
     except KeyboardInterrupt:
         print("\nGoodbye!")
         sys.exit(0)
