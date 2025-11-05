@@ -1,9 +1,6 @@
-from langchain_core.runnables import RunnableConfig
 from langchain.chat_models import init_chat_model
 from langgraph.graph import StateGraph, MessagesState, START
-from langgraph.checkpoint.postgres import PostgresSaver
-from langgraph.store.postgres import PostgresStore  
-from langgraph.store.base import BaseStore
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver  
 import uuid
 
 import os
@@ -16,78 +13,51 @@ model = init_chat_model(model="gpt-3.5-turbo", api_key=api_key)
 
 DB_URI = "postgresql://postgres:123456@localhost:5432/postgres?sslmode=disable"
 
-with (
-    PostgresStore.from_conn_string(DB_URI) as store,  
-    PostgresSaver.from_conn_string(DB_URI) as checkpointer,
-):
-    # store.setup()
-    # checkpointer.setup()
+async def chat(thread_id: str, user_message: str):
+    async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:  
+        await checkpointer.setup()
 
-    def call_model(
-        state: MessagesState,
-        config: RunnableConfig,
-        *,
-        store: BaseStore,  
-    ):
-        user_id = config["configurable"]["user_id"]
-        namespace = ("memories", user_id)
-        memories = store.search(namespace, query=str(state["messages"][-1].content))  
-        info = "\n".join([d.value["data"] for d in memories])
-        system_msg = f"You are a helpful assistant talking to the user. User info: {info}"
+        async def call_model(state: MessagesState):
+            response = await model.ainvoke(state["messages"])
+            return {"messages": response}
 
-        # Store new memories if the user asks the model to remember
-        last_message = state["messages"][-1]
-        if "remember" in last_message.content.lower():
-            memory = "User name is Bob"
-            store.put(namespace, str(uuid.uuid4()), {"data": memory})  
+        builder = StateGraph(MessagesState)
+        builder.add_node(call_model)
+        builder.add_edge(START, "call_model")
 
-        response = model.invoke(
-            [{"role": "system", "content": system_msg}] + state["messages"]
-        )
-        return {"messages": response}
+        graph = builder.compile(checkpointer=checkpointer)  
 
-    builder = StateGraph(MessagesState)
-    builder.add_node(call_model)
-    builder.add_edge(START, "call_model")
-
-    graph = builder.compile(
-        checkpointer=checkpointer,
-        store=store,  
-    )
-
-    config = {
-        "configurable": {
-            "thread_id": "1",  
-            "user_id": "1",  
+        config = {
+            "configurable": {
+                "thread_id": thread_id
+            }
         }
-    }
-    for chunk in graph.stream(
-        {"messages": [{"role": "user", "content": "Hi! Remember: my name is Bob"}]},
-        config,  
-        stream_mode="values",
-    ):
-        chunk["messages"][-1].pretty_print()
+        
+        async for chunk in graph.astream(
+            {"messages": [{"role": "user", "content": user_message}]},
+            config,  
+            stream_mode="values"
+        ):
+            chunk["messages"][-1].pretty_print()
+        
+if __name__ == "__main__":
+    # import asyncio
+    # asyncio.run(chat(thread_id="1", user_message="Hello, I'm Bob!"))  
+    
+    import asyncio
+    import sys
 
-    config = {
-        "configurable": {
-            "thread_id": "2",  
-            "user_id": "1",
-        }
-    }
+    thread_id = "terminal-test"  
 
-    for chunk in graph.stream(
-        {"messages": [{"role": "user", "content": "what is my name?"}]},
-        config,  
-        stream_mode="values",
-    ):
-        chunk["messages"][-1].pretty_print()
-
-    # Print database view to verify history
-    print("\n================================ Database View =================================\n")
-    print("Stored memories for user_id '1':")
-    namespace = ("memories", "1")
-    all_memories = store.search(namespace, query="", limit=100)
-    for memory in all_memories:
-        print(f"  Key: {memory.key}")
-        print(f"  Data: {memory.value}")
-        print()
+    print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
+    try:
+        while True:
+            user_input = input("\n> ").strip()
+            if user_input.lower() in ("quit", "exit", "q"):
+                print("Goodbye!")
+                break
+            if user_input:
+                asyncio.run(chat(thread_id=thread_id, user_message=user_input))
+    except KeyboardInterrupt:
+        print("\nGoodbye!")
+        sys.exit(0)
