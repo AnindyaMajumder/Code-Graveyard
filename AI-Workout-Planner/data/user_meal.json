@@ -1,0 +1,2246 @@
+{
+  "id": 2,
+  "meal_plan_name": "15 Days meal Plan",
+  "meal_plan_name_spanish": "15 días de entrenamiento",
+  "start_date": "2025-12-05",
+  "end_date": "2025-12-20",
+  "is_completed": false,
+  "is_cancelled": false,
+  "daily_meals": [
+    {
+      "id": 16,
+      "date": "2025-12-05",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 91,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 151,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 152,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 92,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 153,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 154,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 93,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 155,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 94,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 156,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 95,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 157,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 158,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 96,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 159,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 160,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "date": "2025-12-06",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 97,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 161,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 162,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 98,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 163,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 164,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 99,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 165,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 100,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 166,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 101,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 167,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 168,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 102,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 169,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 170,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "date": "2025-12-07",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 103,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 171,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 172,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 104,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 173,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 174,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 105,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 175,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 106,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 176,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 107,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 177,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 178,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 108,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 179,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 180,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "date": "2025-12-08",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 109,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 181,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 182,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 110,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 183,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 184,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 111,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 185,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 112,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 186,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 113,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 187,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 188,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 114,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 189,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 190,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "date": "2025-12-09",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 115,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 191,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 192,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 116,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 193,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 194,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 117,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 195,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 118,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 196,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 119,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 197,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 198,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 120,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 199,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 200,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "date": "2025-12-10",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 121,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 201,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 202,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 122,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 203,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 204,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 123,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 205,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 124,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 206,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 125,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 207,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 208,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 126,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 209,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 210,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "date": "2025-12-11",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 127,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 211,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 212,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 128,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 213,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 214,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 129,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 215,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 130,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 216,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 131,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 217,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 218,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 132,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 219,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 220,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "date": "2025-12-12",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 133,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 221,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 222,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 134,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 223,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 224,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 135,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 225,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 136,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 226,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 137,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 227,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 228,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 138,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 229,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 230,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "date": "2025-12-13",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 139,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 231,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 232,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 140,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 233,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 234,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 141,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 235,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 142,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 236,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 143,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 237,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 238,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 144,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 239,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 240,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "date": "2025-12-14",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 145,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 241,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 242,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 146,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 243,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 244,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 147,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 245,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 148,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 246,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 149,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 247,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 248,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 150,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 249,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 250,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "date": "2025-12-15",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 151,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 251,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 252,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 152,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 253,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 254,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 153,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 255,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 154,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 256,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 155,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 257,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 258,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 156,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 259,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 260,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "date": "2025-12-16",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 157,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 261,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 262,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 158,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 263,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 264,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 159,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 265,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 160,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 266,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 161,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 267,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 268,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 162,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 269,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 270,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "date": "2025-12-17",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 163,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 271,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 272,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 164,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 273,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 274,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 165,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 275,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 166,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 276,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 167,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 277,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 278,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 168,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 279,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 280,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "date": "2025-12-18",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 169,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 281,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 282,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 170,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 283,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 284,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 171,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 285,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 172,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 286,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 173,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 287,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 288,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 174,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 289,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 290,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "date": "2025-12-19",
+      "completed": false,
+      "meal_slots": [
+        {
+          "id": 175,
+          "slot_type": "pre-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 291,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 200,
+              "calories": 280,
+              "protein_g": 16,
+              "fat_g": 6,
+              "carbs_g": 44,
+              "completed": false
+            },
+            {
+              "id": 292,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 150,
+              "calories": 210,
+              "protein_g": 25,
+              "fat_g": 6,
+              "carbs_g": 12,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 176,
+          "slot_type": "post-entreno",
+          "completed": false,
+          "entries": [
+            {
+              "id": 293,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 260,
+              "protein_g": 22,
+              "fat_g": 7,
+              "carbs_g": 28,
+              "completed": false
+            },
+            {
+              "id": 294,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 240,
+              "calories": 360,
+              "protein_g": 28,
+              "fat_g": 12,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 177,
+          "slot_type": "1",
+          "completed": false,
+          "entries": [
+            {
+              "id": 295,
+              "meal_name": "Batido de proteinas ISO",
+              "grams": 140,
+              "calories": 210,
+              "protein_g": 12,
+              "fat_g": 8,
+              "carbs_g": 16,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 178,
+          "slot_type": "2",
+          "completed": false,
+          "entries": [
+            {
+              "id": 296,
+              "meal_name": "Plátano",
+              "grams": 260,
+              "calories": 320,
+              "protein_g": 25,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 179,
+          "slot_type": "3",
+          "completed": false,
+          "entries": [
+            {
+              "id": 297,
+              "meal_name": "Arroz blanco (hervir)",
+              "grams": 190,
+              "calories": 310,
+              "protein_g": 20,
+              "fat_g": 9,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 298,
+              "meal_name": "Pechuga de pollo(hervir o a la plancha)",
+              "grams": 170,
+              "calories": 260,
+              "protein_g": 16,
+              "fat_g": 7,
+              "carbs_g": 30,
+              "completed": false
+            }
+          ]
+        },
+        {
+          "id": 180,
+          "slot_type": "4",
+          "completed": false,
+          "entries": [
+            {
+              "id": 299,
+              "meal_name": "Melón",
+              "grams": 180,
+              "calories": 270,
+              "protein_g": 18,
+              "fat_g": 6,
+              "carbs_g": 34,
+              "completed": false
+            },
+            {
+              "id": 300,
+              "meal_name": "Batido de proteinas whey",
+              "grams": 260,
+              "calories": 420,
+              "protein_g": 34,
+              "fat_g": 14,
+              "carbs_g": 40,
+              "completed": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

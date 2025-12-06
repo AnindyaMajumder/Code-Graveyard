@@ -71,8 +71,46 @@ def workout(workout_data: dict) -> str:
         day_blocks.append(f"[{day_str}]")
     return ",\n".join(day_blocks)
 
+def meal(meal_data: dict) -> str:
+    now_date = date.today().strftime('%Y-%m-%d')
+    # Filter daily_meals for current date
+    filtered_daily = [day for day in meal_data.get('daily_meals', []) if day['date'] == now_date]
+    if not filtered_daily:
+        return "No meal plan for today."
+    day = filtered_daily[0]
+    # Count remaining days
+    remaining_days = sum(1 for d in meal_data.get('daily_meals', []) if d['date'] >= now_date)
+    # Remove completed from meal_slots and entries
+    day_filtered = {
+        'id': day['id'],
+        'date': day['date'],
+        'meal_slots': []
+    }
+    for slot in day.get('meal_slots', []):
+        slot_filtered = {k: v for k, v in slot.items() if k != 'completed'}
+        slot_filtered['entries'] = []
+        for entry in slot.get('entries', []):
+            entry_filtered = {k: v for k, v in entry.items() if k != 'completed'}
+            slot_filtered['entries'].append(entry_filtered)
+        day_filtered['meal_slots'].append(slot_filtered)
+        
+    # Build string output
+    day_lines = [f"id: {day_filtered['id']}", f"date: {day_filtered['date']}", f"Remaining days: {remaining_days}"]
+    if day['date'] == meal_data.get('end_date'):
+        day_lines.append("This is the last day of the meal plan.")
+    
+    for slot in day_filtered['meal_slots']:
+        slot_lines = [f"slot_type: {slot['slot_type']}"]
+        for entry in slot['entries']:
+            entry_str = f"{entry['meal_name']}, grams: {entry['grams']}, calories: {entry['calories']}, protein_g: {entry['protein_g']}, fat_g: {entry['fat_g']}, carbs_g: {entry['carbs_g']}"
+            slot_lines.append(entry_str)
+        slot_str = "\n".join(slot_lines)
+        day_lines.append(f"[{slot_str}],")
+
+    return "\n".join(day_lines)
+
 # ----------------------------------------------------------------------------
-with open("data/user_workout.json", "r", encoding="utf-8") as f:
-    workout_data = json.load(f)  # Load the JSON file
-    processed_data = workout(workout_data)
+with open("data/user_meal.json", "r", encoding="utf-8") as f:
+    meal_data = json.load(f)  # Load the JSON file
+    processed_data = meal(meal_data)
     print(processed_data)

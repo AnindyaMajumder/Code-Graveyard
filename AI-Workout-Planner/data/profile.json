@@ -1,0 +1,58 @@
+{
+  "profile": {
+    "fullname": "MS",
+    "date_of_birth": "2000-12-12",
+    "weight": 70,
+    "height": 65,
+    "abdominal": 10,
+    "sacroiliac": 10,
+    "subscapularis": 10,
+    "triceps": 10,
+    "gender": "female",
+    "trainer": "no",
+    "fitness_goals": "no",
+    "injuries_discomfort": "no",
+    "dietary_preferences": "no",
+    "allergies": "no",
+    "medical_conditions": "yes"
+  },
+  "UserMealFQA": {
+    "activeness_level": "active",
+    "event": "no",
+    "doctor_clearance": "yes",
+    "training_environment": "no",
+    "preferences": "no",
+    "skipped": "no",
+    "profile_json": {
+      "gender": "female",
+      "height": "65",
+      "weight": "70",
+      "allergies": "no",
+      "date_of_birth": "2000-12-12",
+      "medical_conditions": "yes",
+      "injuries_discomfort": "no"
+    }
+  },
+  "UserWorkoutFQA": {
+    "session_duration": "45",
+    "days_per_week": 4,
+    "training_environment": "yes",
+    "equipments_access": "yes",
+    "training_style": "na",
+    "activeness_level": "active",
+    "motivation_factor": "no",
+    "event": "no",
+    "recent_injuries": "no",
+    "fitness_level": "active",
+    "doctor_clearance": "yes",
+    "profile_json": {
+      "gender": "female",
+      "height": "65",
+      "weight": "70",
+      "allergies": "no",
+      "date_of_birth": "2000-12-12",
+      "medical_conditions": "yes",
+      "injuries_discomfort": "no"
+    }
+  }
+}
