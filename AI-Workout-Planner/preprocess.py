@@ -1,7 +1,11 @@
 from datetime import date, datetime
 import json
 
-def profile(profile_data: dict) -> str:
+def profile() -> str:
+    with open("data/profile.json", "r", encoding="utf-8") as f:
+        profile_data = json.load(f) 
+    # ----------------------------------------------------------------------------
+    
     def flatten_dict(d, prefix='', skip_keys=None):
         if skip_keys is None:
             skip_keys = []
@@ -41,7 +45,11 @@ def profile(profile_data: dict) -> str:
     items = [f"{k}: {v}" for k, v in all_items.items()]
     return "\n".join(items)
 
-def workout(workout_data: dict) -> str:
+def workout() -> str:
+    with open("data/user_workout.json", "r", encoding="utf-8") as f:
+        workout_data = json.load(f) 
+    # ----------------------------------------------------------------------------
+    
     now_date = date.today()
     # Filter daily_workouts for current and future dates
     filtered_daily = []
@@ -71,7 +79,11 @@ def workout(workout_data: dict) -> str:
         day_blocks.append(f"[{day_str}]")
     return ",\n".join(day_blocks)
 
-def meal(meal_data: dict) -> str:
+def meal() -> str:
+    with open("data/user_meal.json", "r", encoding="utf-8") as f:
+        meal_data = json.load(f) 
+    # ----------------------------------------------------------------------------
+    
     now_date = date.today().strftime('%Y-%m-%d')
     # Filter daily_meals for current date
     filtered_daily = [day for day in meal_data.get('daily_meals', []) if day['date'] == now_date]
@@ -108,9 +120,3 @@ def meal(meal_data: dict) -> str:
         day_lines.append(f"[{slot_str}],")
 
     return "\n".join(day_lines)
-
-# ----------------------------------------------------------------------------
-with open("data/user_meal.json", "r", encoding="utf-8") as f:
-    meal_data = json.load(f)  # Load the JSON file
-    processed_data = meal(meal_data)
-    print(processed_data)

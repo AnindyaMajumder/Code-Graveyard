@@ -1,9 +1,8 @@
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import SystemMessage
-from langgraph.graph import StateGraph, MessagesState, START
-from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver  
+from langgraph_supervisor import create_supervisor
+from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 import uuid
-
+from agents import Agents
 import os
 from dotenv import load_dotenv
 
@@ -17,17 +16,23 @@ DB_URI = os.getenv("DB_URI")
 async def chat(thread_id: str, user_message: str):
     async with AsyncPostgresSaver.from_conn_string(DB_URI) as checkpointer:  
         await checkpointer.setup()
-
-        async def call_model(state: MessagesState):
-            system_msg = SystemMessage("You are a fitness expert specializing in creating personalized workout and meal plans. Provide suggestions based on user preferences, fitness levels, and goals. Don't include any out of the context information. Be concise and to the point.")
-            response = await model.ainvoke([system_msg] + state["messages"])
-            return {"messages": response}
-
-        builder = StateGraph(MessagesState)
-        builder.add_node(call_model)
-        builder.add_edge(START, "call_model")
-
-        graph = builder.compile(checkpointer=checkpointer)  
+        
+        # Supervisor agent
+        supervisor = create_supervisor(
+            model=model,
+            agents=[Agents("meal"), Agents("workout")],
+            prompt=(
+                "You are a fitness supervisor agent coordinating between meal and workout planning specialists. "
+                "Your role is to understand user requests and delegate tasks to the appropriate agents:\n\n"
+                "- Use MealUpdateAgent for questions about diet, nutrition, meal plans, recipes, or food-related queries.\n"
+                "- Use WorkoutUpdateAgent for questions about exercise, training routines, workout plans, or fitness activities.\n\n"
+                "If the user's request involves both meal and workout planning, coordinate between both agents. "
+                "Synthesize their responses into a comprehensive fitness plan. "
+                "Always prioritize user safety and provide balanced recommendations."
+            ),
+            add_handoff_back_messages=True,
+            output_mode="full_history",
+        ).compile(checkpointer=checkpointer)
 
         config = {
             "configurable": {
@@ -36,7 +41,7 @@ async def chat(thread_id: str, user_message: str):
         }
         
         messages = []
-        async for chunk in graph.astream(
+        async for chunk in supervisor.astream(
             {"messages": [{"role": "user", "content": user_message}]},
             config,  
             stream_mode="values"
