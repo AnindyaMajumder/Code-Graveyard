@@ -13,6 +13,7 @@ class UserProfile(BaseModel):
     water_intake: float = Field(..., description="Daily water intake in liters")
     sleep_hours: float = Field(..., description="Average sleep hours per night")
     calorie_goal: int = Field(..., description="Daily calorie intake goal")
+    workout_plan: list[str] = Field(..., description="Suggested workout plan")
 
 def suggest_workout(
     date_of_birth: date,
@@ -28,7 +29,7 @@ def suggest_workout(
     ) -> str:
     
     prompt = f"""
-    You are an expert fitness trainer. Based on the following user profile and preferences, suggest required water intake, sleep hours, calorie goals.\n Here is the user information:
+    You are an expert fitness trainer. Based on the following user profile and preferences, suggest required water intake, sleep hours, calorie goals, and a workout plan. In the workout plan, provide a list of 3 to 5 exercise names.\n Here is the user information:
     Date of Birth: {date_of_birth}
     Weight: {weight} kg
     Height: {height} cm
@@ -58,4 +59,4 @@ if __name__ == "__main__":
         allergies="Peanuts",
         medical_conditions="None"
     )
-    print(type(user_profile))
+    print(user_profile)
