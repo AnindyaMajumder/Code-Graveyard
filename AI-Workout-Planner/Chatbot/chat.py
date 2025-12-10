@@ -21,7 +21,7 @@ async def chat(thread_id: str, user_message: str):
             model=model,
             agents=[Meal(), Workout(), Profile()],
             prompt=(
-                "You are a fitness supervisor agent coordinating between meal and workout planning specialists. "
+                "You are a fitness supervisor agent coordinating between meal and workout planning specialists. Keep "
                 "Your role is to understand user requests and delegate tasks to the appropriate agents:\n\n"
                 "DELEGATION RULES:\n"
                 "- Use MealUpdateAgent for questions about diet, nutrition, meal plans, recipes, or food-related queries.\n"

@@ -1,9 +1,35 @@
 from datetime import date, datetime
 import json
+import time
+from typing import Any, Dict
+
+# Cache configuration
+CACHE_TTL = 300  # Time to live in seconds (5 minutes)
+_cache: Dict[str, Dict[str, Any]] = {}
+
+def _load_json_cached(filepath: str) -> dict:
+    """Load JSON file with TTL-based caching."""
+    current_time = time.time()
+    
+    # Check if cached data exists and is still valid
+    if filepath in _cache:
+        cache_entry = _cache[filepath]
+        if current_time - cache_entry['timestamp'] < CACHE_TTL:
+            return cache_entry['data']
+    
+    # Load from file and update cache
+    with open(filepath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    _cache[filepath] = {
+        'data': data,
+        'timestamp': current_time
+    }
+    
+    return data
 
 def profile() -> str:
-    with open("data/profile.json", "r", encoding="utf-8") as f:
-        profile_data = json.load(f) 
+    profile_data = _load_json_cached("../data/profile.json") 
     # ----------------------------------------------------------------------------
     
     def flatten_dict(d, prefix='', skip_keys=None):
@@ -46,9 +72,7 @@ def profile() -> str:
     return "\n".join(items)
 
 def workout() -> str:
-    with open("data/user_workout.json", "r", encoding="utf-8") as f:
-        workout_data = json.load(f) 
-    # ----------------------------------------------------------------------------
+    workout_data = _load_json_cached("../data/user_workout.json")
     
     now_date = date.today()
     # Filter daily_workouts for current and future dates
@@ -80,9 +104,7 @@ def workout() -> str:
     return ",\n".join(day_blocks)
 
 def meal() -> str:
-    with open("data/user_meal.json", "r", encoding="utf-8") as f:
-        meal_data = json.load(f) 
-    # ----------------------------------------------------------------------------
+    meal_data = _load_json_cached("../data/user_meal.json")
     
     now_date = date.today().strftime('%Y-%m-%d')
     # Filter daily_meals for current date
