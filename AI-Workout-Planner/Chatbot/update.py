@@ -3,8 +3,8 @@ import json
 
 def update_meal(meal: MealResponse) -> str:
     # print(json.dumps(meal.dict(), indent=2))
-    print("==Update meal triggered==")
+    print("\n\n==Update meal triggered==\n\n")
     
 def update_workout(workout: WorkoutResponse) -> str:
     # print(json.dumps(workout.dict(), indent=2))
-    print("==Update workout triggered==")
+    print("\n\n==Update workout triggered==\n\n")
