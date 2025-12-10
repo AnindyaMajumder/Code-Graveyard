@@ -2,6 +2,7 @@ from typing import Annotated
 from langchain_openai import ChatOpenAI
 from langgraph_supervisor.supervisor import create_react_agent
 from langchain_core.tools import tool
+from models import Food, WorkoutPlan
 
 import os
 from dotenv import load_dotenv
@@ -45,7 +46,7 @@ def Agents(agent: str):
 
     if (agent == "meal"):
         meal_update_agent = create_react_agent(
-            llm,
+            llm.with_structured_output(Food),
             tools=[get_profile, get_meal],
             prompt = (
                 "You are a meal plan update agent. Based on the user's profile data and current meal plan, "
@@ -57,7 +58,7 @@ def Agents(agent: str):
         return meal_update_agent
     elif (agent == "workout"):
         workout_update_agent = create_react_agent(
-            llm,
+            llm.with_structured_output(WorkoutPlan),
             tools=[get_profile, get_workout],
             prompt = (
                 "You are a workout plan update agent. Based on the user's profile data and current workout plan, "
