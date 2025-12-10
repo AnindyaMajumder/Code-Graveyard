@@ -2,7 +2,9 @@ from langchain.chat_models import init_chat_model
 from langgraph_supervisor import create_supervisor
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from agents import Meal, Workout, Profile
+from models import MealResponse, WorkoutResponse, ProfileResponse
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,11 +25,15 @@ async def chat(thread_id: str, user_message: str):
             prompt=(
                 "You are a fitness supervisor agent coordinating between meal and workout planning specialists. "
                 "Your role is to understand user requests and delegate tasks to the appropriate agents:\n\n"
+                "DELEGATION RULES:\n"
                 "- Use MealUpdateAgent for questions about diet, nutrition, meal plans, recipes, or food-related queries.\n"
                 "- Use WorkoutUpdateAgent for questions about exercise, training routines, workout plans, or fitness activities.\n"
                 "- Use ProfileAgent for questions about user fitness profiles, goals, preferences, restrictions or any related information.\n\n"
-                "If the user's request involves both meal and workout planning, coordinate between both agents. "
-                "Synthesize their responses into a comprehensive fitness plan. "
+                "IMPORTANT:\n"
+                "- Agents return conversational responses with awareness of user data\n"
+                "- When users request plan updates, agents will provide both explanation AND structured data\n"
+                "- For general queries, agents provide friendly responses about current user status\n"
+                "- If the user's request involves both meal and workout planning, coordinate between both agents\n\n"
                 "Always prioritize user safety and provide balanced recommendations."
             ),
             add_handoff_back_messages=True,
@@ -54,7 +60,7 @@ if __name__ == "__main__":
     import asyncio
     import sys
 
-    thread_id = "test1"  
+    thread_id = "test2"  
 
     print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
     try:
