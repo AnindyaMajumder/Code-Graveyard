@@ -21,7 +21,7 @@ async def chat(thread_id: str, user_message: str):
             model=model,
             agents=[Meal(), Workout(), Profile()],
             prompt=(
-                "You are a fitness supervisor agent coordinating between meal and workout planning specialists. Keep "
+                "You are a fitness supervisor agent coordinating between meal and workout planning specialists. Keep your responses concise and relevant.\n\n"
                 "Your role is to understand user requests and delegate tasks to the appropriate agents:\n\n"
                 "DELEGATION RULES:\n"
                 "- Use MealUpdateAgent for questions about diet, nutrition, meal plans, recipes, or food-related queries.\n"
@@ -44,15 +44,14 @@ async def chat(thread_id: str, user_message: str):
             }
         }
         
-        messages = []
-        async for chunk in supervisor.astream(
+        async for event in supervisor.astream_events(
             {"messages": [{"role": "user", "content": user_message}]},
-            config,  
-            stream_mode="values"
+            config,
         ):
-            messages = chunk["messages"]
-        
-        return messages[-1] if messages else None
+            if event["event"] == "on_chat_model_stream":
+                chunk = event["data"]["chunk"]
+                if hasattr(chunk, "content") and chunk.content:
+                    yield chunk.content
         
 if __name__ == "__main__":
     import asyncio
@@ -68,8 +67,12 @@ if __name__ == "__main__":
                 print("Goodbye!")
                 break
             if user_input:
-                response = asyncio.run(chat(thread_id=thread_id, user_message=user_input))
-                print(f"AI > {response.content}")
+                print("AI > ", end="", flush=True)
+                async def stream_response():
+                    async for token in chat(thread_id=thread_id, user_message=user_input):
+                        print(token, end="", flush=True)
+                    print()  # New line after response
+                asyncio.run(stream_response())
     except KeyboardInterrupt:
         print("\nGoodbye!")
         sys.exit(0)
