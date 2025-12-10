@@ -70,3 +70,19 @@ def Workout():
         return workout_update_agent
     except Exception as e:
         raise RuntimeError(f"Error in Workout agent: {str(e)}")
+    
+def Profile():
+    try:
+        profile_agent = create_react_agent(
+            llm,
+            tools=[get_profile],
+            response_format=str,
+            prompt = (
+                "You are a user profile retrieval agent. Provide a summary of the user's fitness profile, "
+                "including goals, preferences, and restrictions."
+            ) ,
+            name = "ProfileAgent"
+        )
+        return profile_agent
+    except Exception as e:
+        raise RuntimeError(f"Error in Profile agent: {str(e)}")

@@ -1,7 +1,7 @@
 from langchain.chat_models import init_chat_model
 from langgraph_supervisor import create_supervisor
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
-from agents import Meal, Workout
+from agents import Meal, Workout, Profile
 import os
 from dotenv import load_dotenv
 
@@ -19,12 +19,13 @@ async def chat(thread_id: str, user_message: str):
         # Supervisor agent
         supervisor = create_supervisor(
             model=model,
-            agents=[Meal(), Workout()],
+            agents=[Meal(), Workout(), Profile()],
             prompt=(
                 "You are a fitness supervisor agent coordinating between meal and workout planning specialists. "
                 "Your role is to understand user requests and delegate tasks to the appropriate agents:\n\n"
                 "- Use MealUpdateAgent for questions about diet, nutrition, meal plans, recipes, or food-related queries.\n"
-                "- Use WorkoutUpdateAgent for questions about exercise, training routines, workout plans, or fitness activities.\n\n"
+                "- Use WorkoutUpdateAgent for questions about exercise, training routines, workout plans, or fitness activities.\n"
+                "- Use ProfileAgent for questions about user fitness profiles, goals, preferences, restrictions or any related information.\n\n"
                 "If the user's request involves both meal and workout planning, coordinate between both agents. "
                 "Synthesize their responses into a comprehensive fitness plan. "
                 "Always prioritize user safety and provide balanced recommendations."
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     import asyncio
     import sys
 
-    thread_id = "test"  
+    thread_id = "test1"  
 
     print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
     try:
