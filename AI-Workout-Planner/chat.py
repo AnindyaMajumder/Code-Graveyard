@@ -2,9 +2,7 @@ from langchain.chat_models import init_chat_model
 from langgraph_supervisor import create_supervisor
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from agents import Meal, Workout, Profile
-from models import MealResponse, WorkoutResponse, ProfileResponse
 import os
-import json
 from dotenv import load_dotenv
 
 load_dotenv()

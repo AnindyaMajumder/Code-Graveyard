@@ -2,7 +2,7 @@ from typing import Annotated
 from langchain_openai import ChatOpenAI
 from langgraph_supervisor.supervisor import create_react_agent
 from langchain_core.tools import tool
-from models import Food, WorkoutPlan, MealResponse, WorkoutResponse, ProfileResponse
+from models import MealResponse, WorkoutResponse, ProfileResponse
 
 import os
 from dotenv import load_dotenv
