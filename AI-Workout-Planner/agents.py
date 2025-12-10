@@ -11,9 +11,7 @@ load_dotenv()
 from preprocess import profile, workout, meal
 
 @tool
-def get_profile(
-    query: Annotated[str, "User's specific data required for updating the meal plan and workout plan"],
-    ) -> str:
+def get_profile() -> str:
     """Get the user's profile data including fitness goals, preferences, and restrictions."""
     try:
         return profile()
@@ -21,9 +19,7 @@ def get_profile(
         return f"Error retrieving profile data: {str(e)}"
 
 @tool
-def get_workout(
-    query: Annotated[str, "User's specific data required for updating the workout plan"],
-    ) -> str:
+def get_workout() -> str:
     """Get the user's current workout plan and exercise data."""
     try:
         return workout()
@@ -31,9 +27,7 @@ def get_workout(
         return f"Error retrieving workout data: {str(e)}"
     
 @tool
-def get_meal(
-    query: Annotated[str, "User's specific data required for updating the meal plan"],
-    ) -> str:
+def get_meal() -> str:
     """Get the user's current meal plan and dietary information."""
     try:
         return meal()
@@ -41,12 +35,13 @@ def get_meal(
         return f"Error retrieving meal data: {str(e)}"
     
 # Agents
-def Agents(agent: str):
-    llm = ChatOpenAI(model="gpt-5-nano", api_key= os.getenv("OPENAI_API_KEY"))
+llm = ChatOpenAI(model="gpt-4.1-nano", api_key= os.getenv("OPENAI_API_KEY"))
 
-    if (agent == "meal"):
+def Meal():
+    try:
         meal_update_agent = create_react_agent(
-            llm.with_structured_output(Food),
+            llm,
+            response_format=Food,
             tools=[get_profile, get_meal],
             prompt = (
                 "You are a meal plan update agent. Based on the user's profile data and current meal plan, "
@@ -56,10 +51,15 @@ def Agents(agent: str):
             name = "MealUpdateAgent"
         )
         return meal_update_agent
-    elif (agent == "workout"):
+    except Exception as e:
+        raise RuntimeError(f"Error in Meal agent: {str(e)}")
+
+def Workout():
+    try:
         workout_update_agent = create_react_agent(
-            llm.with_structured_output(WorkoutPlan),
+            llm,
             tools=[get_profile, get_workout],
+            response_format=WorkoutPlan,
             prompt = (
                 "You are a workout plan update agent. Based on the user's profile data and current workout plan, "
                 "provide updated workout suggestions that align with the user's fitness level, goals, and preferences. "
@@ -68,5 +68,5 @@ def Agents(agent: str):
             name = "WorkoutUpdateAgent"
         )
         return workout_update_agent
-    else:
-        raise ValueError("Invalid agent type. Choose 'meal' or 'workout'.")
+    except Exception as e:
+        raise RuntimeError(f"Error in Workout agent: {str(e)}")

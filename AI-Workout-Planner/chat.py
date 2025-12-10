@@ -1,15 +1,14 @@
 from langchain.chat_models import init_chat_model
 from langgraph_supervisor import create_supervisor
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
-import uuid
-from agents import Agents
+from agents import Meal, Workout
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
-model = init_chat_model(model="gpt-3.5-turbo", api_key=api_key)
+model = init_chat_model(model="gpt-5-nano", api_key=api_key)
 
 DB_URI = os.getenv("DB_URI")
 
@@ -20,7 +19,7 @@ async def chat(thread_id: str, user_message: str):
         # Supervisor agent
         supervisor = create_supervisor(
             model=model,
-            agents=[Agents("meal"), Agents("workout")],
+            agents=[Meal(), Workout()],
             prompt=(
                 "You are a fitness supervisor agent coordinating between meal and workout planning specialists. "
                 "Your role is to understand user requests and delegate tasks to the appropriate agents:\n\n"
@@ -54,7 +53,7 @@ if __name__ == "__main__":
     import asyncio
     import sys
 
-    thread_id = "terminal-test"  
+    thread_id = "test"  
 
     print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
     try:
