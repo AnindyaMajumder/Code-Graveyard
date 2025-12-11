@@ -60,7 +60,6 @@ llm = ChatOpenAI(model="gpt-4.1-nano", api_key= os.getenv("OPENAI_API_KEY"))
 try:
     meal_update_agent = create_react_agent(
         llm,
-        # response_format=MealResponse,
         tools=[get_profile, get_meal, update_mealplan],
         prompt = (
         "You are a meal planning assistant with access to the user's profile and current meal plan. You provide dietary recommendations and meal plan updates.\n\n"
@@ -81,7 +80,6 @@ try:
     workout_update_agent = create_react_agent(
         llm,
         tools=[get_profile, get_workout, update_workoutplan],
-        # response_format=WorkoutResponse,
         prompt = (
             "You are a workout planning assistant with access to the user's profile and current workout plan.\n\n"
             "Use `get_workout` to get current workout plan before responding.\n"

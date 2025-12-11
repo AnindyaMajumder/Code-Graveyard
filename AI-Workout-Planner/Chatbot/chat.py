@@ -51,19 +51,18 @@ async def chat(thread_id: str, user_message: str):
             config,
             version="v2",
         ):
-            
-            with open("events_log.txt", "a") as f:
-                f.write(str(event) + "\n")
             if event["event"] == "on_chat_model_stream":
                 chunk = event["data"]["chunk"]
                 if hasattr(chunk, "content") and chunk.content:
-                    yield chunk.content
+                    checkpoint_ns = event["metadata"].get("checkpoint_ns", "")
+                    if checkpoint_ns.startswith("supervisor"):
+                        yield chunk.content
         
 if __name__ == "__main__":
     import asyncio
     import sys
 
-    thread_id = "fasa58"  
+    thread_id = "fasdsa58"  
 
     print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
     try:
