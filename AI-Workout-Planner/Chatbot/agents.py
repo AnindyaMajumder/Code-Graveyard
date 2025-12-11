@@ -2,7 +2,8 @@ from typing import Annotated
 from langchain_openai import ChatOpenAI
 from langgraph_supervisor.supervisor import create_react_agent
 from langchain_core.tools import tool
-from models import MealResponse, WorkoutResponse, ProfileResponse
+from models import Meal, WorkoutPlan
+from update import update_meal, update_workout
 
 import os
 from dotenv import load_dotenv
@@ -34,96 +35,62 @@ def get_meal() -> str:
     except Exception as e:
         return f"Error retrieving meal data: {str(e)}"
     
+@tool
+def update_workoutplan(new_workout_plan: WorkoutPlan) -> str:
+    """Update the user's workout plan with the provided new workout plan."""
+    try:
+        update_workout(new_workout_plan)
+        return "Workout plan updated successfully."
+    except Exception as e:
+        return f"Error updating workout plan: {str(e)}"
+    
+@tool
+def update_mealplan(new_meal_plan: Meal) -> str:
+    """Update the user's meal plan with the provided new meal plan."""
+    try:
+        update_meal(new_meal_plan)
+        return "Meal plan updated successfully."
+    except Exception as e:
+        return f"Error updating meal plan: {str(e)}"
+    
 # Agents
 llm = ChatOpenAI(model="gpt-4.1-nano", api_key= os.getenv("OPENAI_API_KEY"))
 
-def Meal():
-    try:
-        meal_update_agent = create_react_agent(
-            llm,
-            response_format=MealResponse,
-            tools=[get_profile, get_meal],
-            prompt = (
-                "You are a meal planning assistant with access to the user's profile and current meal plan.\n\n"
-                "IMPORTANT INSTRUCTIONS:\n"
-                "1. ALWAYS use get_profile() and get_meal() tools to retrieve current user data first.\n"
-                "2. For general questions or queries about meals/nutrition:\n"
-                "   - Provide conversational, friendly responses in the 'explanation' field\n"
-                "   - Reference the user's current meal plan, preferences, allergies, and restrictions\n"
-                "   - Set 'structured_update' to null\n\n"
-                "3. For meal plan UPDATE requests (keywords: 'update', 'change', 'modify', 'create new', 'suggest new'):\n"
-                "   - Provide a conversational explanation comparing current vs. suggested meals in 'explanation'\n"
-                "   - Include reasoning for changes (e.g., 'Based on your goal to gain muscle, I increased protein')\n"
-                "   - Populate 'structured_update' with the complete new meal plan using Food model\n"
-                "   - Ensure meals align with dietary preferences, restrictions (allergies, medical conditions), and fitness goals\n\n"
-                "4. Make responses personal and context-aware:\n"
-                "   - 'I see you currently have...' or 'Looking at your meal plan...'\n"
-                "   - Reference specific user data like allergies, goals, preferences\n"
-                "   - Explain nutritional balance (calories, protein, carbs, fats)\n\n"
-                "Always be helpful, supportive, and ensure meal suggestions are safe and appropriate for the user."
-            ),
-            name = "MealUpdateAgent"
-        )
-        return meal_update_agent
-    except Exception as e:
+
+try:
+    meal_update_agent = create_react_agent(
+        llm,
+        # response_format=MealResponse,
+        tools=[get_profile, get_meal, update_mealplan],
+        prompt = (
+        "You are a meal planning assistant with access to the user's profile and current meal plan. You provide dietary recommendations and meal plan updates.\n\n"
+        "Use `get_meal` to get current meal plan before responding.\n"
+        "Always use `get_profile` to understand user dietary preferences, restrictions and user specifics.\n\n"
+        "If user requests meal plan UPDATE (keywords: 'update', 'change', 'modify', 'create new', 'suggest new', etc):\n"
+        "- Provide precise justification in 'explanation' field comparing current vs. suggested meals\n"
+        "Always include reasoning for changes (e.g., 'Based on your protein needs, I increased...')\n"
+        "Conversational responses should be friendly, precise and context-aware referencing user data.\n"
+        ),
+        name = "MealUpdateAgent"
+    )
+except Exception as e:
         raise RuntimeError(f"Error in Meal agent: {str(e)}")
 
-def Workout():
-    try:
-        workout_update_agent = create_react_agent(
-            llm,
-            tools=[get_profile, get_workout],
-            response_format=WorkoutResponse,
-            prompt = (
-                "You are a workout planning assistant with access to the user's profile and current workout plan.\n\n"
-                "IMPORTANT INSTRUCTIONS:\n"
-                "1. ALWAYS use get_profile() and get_workout() tools to retrieve current user data first.\n"
-                "2. For general questions or queries about workouts/fitness:\n"
-                "   - Provide conversational, friendly responses in the 'explanation' field\n"
-                "   - Reference the user's current workout plan, fitness level, goals, and preferences\n"
-                "   - Set 'structured_update' to null\n\n"
-                "3. For workout plan UPDATE requests (keywords: 'update', 'change', 'modify', 'create new', 'suggest new'):\n"
-                "   - Provide a conversational explanation comparing current vs. suggested workouts in 'explanation'\n"
-                "   - Include reasoning for changes (e.g., 'Based on your intermediate level, I added progressive overload')\n"
-                "   - Populate 'structured_update' with the complete new workout plan using WorkoutPlan model\n"
-                "   - Ensure workouts match fitness level, available equipment, training environment, and goals\n\n"
-                "4. Make responses personal and context-aware:\n"
-                "   - 'I see your current plan includes...' or 'Looking at your workout schedule...'\n"
-                "   - Reference specific user data like fitness level, equipment access, training style\n"
-                "   - Explain exercise selection, volume (sets/reps), and progression\n\n"
-                "Always prioritize safety, proper form, and progressive overload principles."
-            ),
-            name = "WorkoutUpdateAgent"
-        )
-        return workout_update_agent
-    except Exception as e:
+
+try:
+    workout_update_agent = create_react_agent(
+        llm,
+        tools=[get_profile, get_workout, update_workoutplan],
+        # response_format=WorkoutResponse,
+        prompt = (
+            "You are a workout planning assistant with access to the user's profile and current workout plan.\n\n"
+            "Use `get_workout` to get current workout plan before responding.\n"
+            "Always use `get_profile` to understand user fitness goals, preferences, restrictions and specifics.\n\n"
+            "If user requests workout plan UPDATE (keywords: 'update', 'change', 'modify', 'create new', 'suggest new', etc):\n"
+            "- Provide precise justification in 'explanation' field comparing current vs. suggested workouts\n"
+            "Always prioritize safety, proper form, and progressive overload principles."
+        ),
+        name = "WorkoutUpdateAgent"
+    )
+except Exception as e:
         raise RuntimeError(f"Error in Workout agent: {str(e)}")
-    
-def Profile():
-    try:
-        profile_agent = create_react_agent(
-            llm,
-            tools=[get_profile],
-            response_format=ProfileResponse,
-            prompt = (
-                "You are a user profile assistant with access to the user's fitness profile data.\n\n"
-                "IMPORTANT INSTRUCTIONS:\n"
-                "1. ALWAYS use get_profile() tool to retrieve current user data first.\n"
-                "2. Provide conversational, friendly responses in the 'explanation' field.\n"
-                "3. Reference specific user data like:\n"
-                "   - Personal details (name, age, gender, weight, height, body measurements)\n"
-                "   - Fitness goals and objectives\n"
-                "   - Dietary preferences and restrictions (allergies, medical conditions)\n"
-                "   - Workout preferences (training style, equipment access, fitness level)\n"
-                "   - Activity level and training frequency\n\n"
-                "4. Make responses personal and informative:\n"
-                "   - Address the user's specific question about their profile\n"
-                "   - Use friendly, supportive language\n"
-                "   - Provide relevant context when appropriate\n\n"
-                "Always be helpful and ensure the user understands their profile information."
-            ),
-            name = "ProfileAgent"
-        )
-        return profile_agent
-    except Exception as e:
-        raise RuntimeError(f"Error in Profile agent: {str(e)}")
