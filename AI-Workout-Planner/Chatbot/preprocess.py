@@ -97,7 +97,7 @@ def workout() -> str:
     for day in filtered_daily:
         day_lines = [f"id: {day['id']}", f"date: {day['date']}"]
         for w in day['workouts']:
-            workout_str = f"{w['workout_name']}, series: {w['series']}, reps: {w['reps']}, rest: {w['rest']}"
+            workout_str = f"id: {w['id']}, {w['workout_name']}, series: {w['series']}, reps: {w['reps']}, rest: {w['rest']}"
             day_lines.append(workout_str)
         day_str = "\n".join(day_lines)
         day_blocks.append(f"[{day_str}]")
@@ -134,9 +134,9 @@ def meal() -> str:
         day_lines.append("This is the last day of the meal plan.")
     
     for slot in day_filtered['meal_slots']:
-        slot_lines = [f"slot_type: {slot['slot_type']}"]
+        slot_lines = [f"id: {slot['id']}, slot_type: {slot['slot_type']}"]
         for entry in slot['entries']:
-            entry_str = f"{entry['meal_name']}, grams: {entry['grams']}, calories: {entry['calories']}, protein_g: {entry['protein_g']}, fat_g: {entry['fat_g']}, carbs_g: {entry['carbs_g']}"
+            entry_str = f"id: {entry['id']}, {entry['meal_name']}, grams: {entry['grams']}, calories: {entry['calories']}, protein_g: {entry['protein_g']}, fat_g: {entry['fat_g']}, carbs_g: {entry['carbs_g']}"
             slot_lines.append(entry_str)
         slot_str = "\n".join(slot_lines)
         day_lines.append(f"[{slot_str}],")

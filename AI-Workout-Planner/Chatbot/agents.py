@@ -2,7 +2,7 @@ from typing import Annotated
 from langchain_openai import ChatOpenAI
 from langgraph_supervisor.supervisor import create_react_agent
 from langchain_core.tools import tool
-from models import Meal, WorkoutPlan
+from models import MealList, WorkoutList
 from update import update_meal, update_workout
 
 import os
@@ -36,7 +36,7 @@ def get_meal() -> str:
         return f"Error retrieving meal data: {str(e)}"
     
 @tool
-def update_workoutplan(new_workout_plan: WorkoutPlan) -> str:
+def update_workoutplan(new_workout_plan: WorkoutList) -> str:
     """Update the user's workout plan with the provided new workout plan."""
     try:
         update_workout(new_workout_plan)
@@ -45,7 +45,7 @@ def update_workoutplan(new_workout_plan: WorkoutPlan) -> str:
         return f"Error updating workout plan: {str(e)}"
     
 @tool
-def update_mealplan(new_meal_plan: Meal) -> str:
+def update_mealplan(new_meal_plan: MealList) -> str:
     """Update the user's meal plan with the provided new meal plan."""
     try:
         update_meal(new_meal_plan)
@@ -56,7 +56,6 @@ def update_mealplan(new_meal_plan: Meal) -> str:
 # Agents
 llm = ChatOpenAI(model="gpt-4.1-nano", api_key= os.getenv("OPENAI_API_KEY"))
 
-
 try:
     meal_update_agent = create_react_agent(
         llm,
@@ -66,7 +65,16 @@ try:
         "Use `get_meal` to get current meal plan before responding.\n"
         "Always use `get_profile` to understand user dietary preferences, restrictions and user specifics.\n\n"
         "If user requests meal plan UPDATE (keywords: 'update', 'change', 'modify', 'create new', 'suggest new', etc):\n"
-        "- Provide precise justification in 'explanation' field comparing current vs. suggested meals\n"
+        "- CRITICAL: When calling `update_mealplan`, you MUST include ALL dates returned by `get_meal`.\n"
+        "- Even if the user only wants to modify one or two days, include every date in the update.\n"
+        "- For dates that are not being updated (if requested), keep their original meal data exactly as returned by `get_meal`.\n\n"
+        "- IMPORTANT: Use the EXACT `id` and `date` values from `get_meal` - do NOT generate or modify these values.\n"
+        "- For each Slot and Meal, also preserve the original `id` from `get_meal` unless adding new items.\n"
+        "- Use the MealList structure with all_data containing a list of DailyMeal entries.\n"
+        "- Each DailyMeal must have: id (from get_meal), date (from get_meal), and meal_slots (list of Slot objects).\n"
+        "- Each Slot must have: id (from get_meal), slot_type ('pre-entreno', 'post-entreno', '1', '2', '3', or '4'), and entries (list of Meal objects).\n"
+        "- Each Meal must have: id (from get_meal), meal_name, grams, calories, protein_g, fat_g, carbs_g.\n"
+        "- Provide precise justification comparing current vs. suggested meals.\n"
         "Always include reasoning for changes (e.g., 'Based on your protein needs, I increased...')\n"
         "Conversational responses should be friendly, precise and context-aware referencing user data.\n"
         ),
@@ -85,7 +93,15 @@ try:
             "Use `get_workout` to get current workout plan before responding.\n"
             "Always use `get_profile` to understand user fitness goals, preferences, restrictions and specifics.\n\n"
             "If user requests workout plan UPDATE (keywords: 'update', 'change', 'modify', 'create new', 'suggest new', etc):\n"
-            "- Provide precise justification in 'explanation' field comparing current vs. suggested workouts\n"
+            "- CRITICAL: When calling `update_workoutplan`, you MUST include ALL dates returned by `get_workout`.\n"
+            "- Even if the user only wants to modify one or two days, include every date in the update.\n"
+            "- For dates that are not being updated (if requested), keep their original workout data exactly as returned by `get_workout`.\n\n"
+            "- IMPORTANT: Use the EXACT `id` and `date` values from `get_workout` - do NOT generate or modify these values.\n"
+            "- For each Workout, also preserve the original `id` from `get_workout` unless adding new exercises.\n"
+            "- Use the WorkoutList structure with all_data containing a list of WorkoutPlan entries.\n"
+            "- Each WorkoutPlan must have: id (from get_workout), date (from get_workout), and workouts (list of Workout objects).\n"
+            "- Each Workout must have: id (from get_workout), workout_name, series, reps, rest.\n"
+            "- Provide precise justification in 'explanation' field comparing current vs. suggested workouts.\n"
             "Always prioritize safety, proper form, and progressive overload principles."
         ),
         name = "WorkoutUpdateAgent"

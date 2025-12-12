@@ -62,7 +62,7 @@ if __name__ == "__main__":
     import asyncio
     import sys
 
-    thread_id = "fasdsa58"  
+    thread_id = "sad56dw"  
 
     print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
     try:
