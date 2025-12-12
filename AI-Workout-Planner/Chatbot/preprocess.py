@@ -74,7 +74,7 @@ def profile() -> str:
 def workout() -> str:
     workout_data = _load_json_cached("../data/user_workout.json")
     
-    now_date = date.today()
+    now_date = date(2025, 12, 8).strftime('%Y-%m-%d')
     # Filter daily_workouts for current and future dates
     filtered_daily = []
     for day in workout_data.get('daily_workouts', []):
@@ -106,7 +106,7 @@ def workout() -> str:
 def meal() -> str:
     meal_data = _load_json_cached("../data/user_meal.json")
     
-    now_date = date.today().strftime('%Y-%m-%d')
+    now_date = date(2025, 12, 8).strftime('%Y-%m-%d')
     # Filter daily_meals for current date
     filtered_daily = [day for day in meal_data.get('daily_meals', []) if day['date'] == now_date]
     if not filtered_daily:

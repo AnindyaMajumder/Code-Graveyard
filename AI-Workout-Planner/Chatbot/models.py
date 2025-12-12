@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from datetime import date
+from datetime import date as dt
 from typing import Optional
 
 class Meal(BaseModel):
@@ -15,8 +15,9 @@ class Workout(BaseModel):
     workout_name: str = Field(..., description="Name of the workout exercise")
     series: int = Field(..., description="Number of series for the workout")
     reps: int = Field(..., description="Number of repetitions per series")
+    rest: int = Field(..., description="Rest time between series in seconds")
 
 class WorkoutPlan(BaseModel):
     id: str = Field(..., description="Unique identifier for the workout plan")
-    plan_date: date = Field(..., description="Date of the workout plan")
+    date: dt = Field(..., description="Date of the workout plan")
     workouts: list[Workout] = Field(..., description="List of workouts included in the plan")
