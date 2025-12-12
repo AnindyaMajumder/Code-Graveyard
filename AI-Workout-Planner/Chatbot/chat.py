@@ -4,6 +4,7 @@ from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from agents import meal_update_agent, workout_update_agent, get_profile
 import os
 from dotenv import load_dotenv
+import datetime
 
 load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
@@ -22,6 +23,7 @@ async def chat(thread_id: str, user_message: str):
             tools=[get_profile],
             agents=[meal_update_agent, workout_update_agent],
             prompt=(
+            f"TODAY'S DATE: {datetime.date.today().strftime('%Y-%m-%d')} - Use this as reference for current date context.\n\n"
             "You are a fitness supervisor coordinating between meal and workout planning specialists. "
             "Keep responses concise, precise and relevant.\n\n"
             "DELEGATION RULES (MUST FOLLOW):\n"
