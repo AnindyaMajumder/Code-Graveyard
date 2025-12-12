@@ -4,6 +4,7 @@ from langgraph_supervisor.supervisor import create_react_agent
 from langchain_core.tools import tool
 from models import MealList, WorkoutList
 from update import update_meal, update_workout
+import datetime
 
 import os
 from dotenv import load_dotenv
@@ -70,19 +71,18 @@ try:
             "CRITICAL RULES:\n"
             "- ALWAYS use the information obtained from `get_profile` to inform all recommendations, updates, and responses.\n"
             "- You MUST ALWAYS call `update_mealplan` if an update is requested - never just describe changes without calling the tool.\n"
-            "- When calling `update_mealplan`, you MUST include ALL dates returned by `get_meal`.\n"
-            "- Even if the user only wants to modify one or two days, include every date in the update.\n"
-            "- For dates not being changed, keep their original meal data exactly as returned by `get_meal`.\n"
+            "- When calling `update_mealplan`, you MUST include ALL meals from ALL dates returned by `get_meal`.\n"
+            "- Even if the user only wants to modify specific meals, include every meal entry in the update.\n"
+            "- For meals not being changed, keep their original data exactly as returned by `get_meal`.\n"
             "- Use the EXACT `id` and `date` values from `get_meal` - do NOT generate or modify these.\n"
-            "- For each Slot and Meal, preserve the original `id` from `get_meal` unless adding new items.\n"
+            "- For each Meal entry, preserve the original `id` from `get_meal` unless adding new meals.\n"
             "- Provide precise justification comparing current vs. suggested meals.\n"
             "- Always include reasoning for changes (e.g., 'Based on your protein needs, I increased...').\n"
             "- Conversational responses should be friendly, precise, and context-aware, referencing user data.\n\n"
             "STRUCTURE:\n"
-            "- MealList: all_data containing a list of DailyMeal entries.\n"
-            "- Each DailyMeal must have: `id` (from `get_meal`), `date` (from `get_meal`), and `meal_slots` (list of Slot objects).\n"
-            "- Each Slot must have: `id` (from `get_meal`), `slot_type` ('pre-entreno', 'post-entreno', '1', '2', '3', or '4'), and `entries` (list of Meal objects).\n"
-            "- Each Meal must have: `id` (from `get_meal`), `meal_name`, `grams`, `calories`, `protein_g`, `fat_g`, `carbs_g`.\n"
+            "- MealList: entries containing a flat list of ALL Meal objects.\n"
+            "- Each Meal must have: `id` (unique identifier from `get_meal`), `date` (date of the meal), `meal_name`, `grams`, `calories`, `protein_g`, `fat_g`, `carbs_g`.\n"
+            "- No nested structures - all meals are at the same level in the entries array.\n"
         ),
         name = "MealUpdateAgent"
     )
@@ -105,14 +105,15 @@ try:
             "- ALWAYS use the information obtained from `get_profile` to inform all recommendations, updates, and responses.\n"
             "- You MUST ALWAYS call `update_workoutplan` - never just describe changes without calling the tool\n"
             "- Do NOT ask clarifying questions - make reasonable assumptions based on profile and update immediately\n"
-            "- When calling `update_workoutplan`, include ALL dates from `get_workout`\n"
+            "- When calling `update_workoutplan`, you MUST include ALL workouts from ALL dates returned by `get_workout`\n"
+            "- Even if the user only wants to modify specific workouts, include every workout entry in the update\n"
+            "- For workouts not being changed, keep their original data exactly as returned by `get_workout`\n"
             "- Use EXACT `id` and `date` values from `get_workout` - do NOT generate or modify these\n"
-            "- For dates not being changed, keep their original workout data exactly as returned\n"
             "- Preserve original `id` for each Workout unless adding new exercises\n\n"
             "STRUCTURE:\n"
-            "- WorkoutList: all_data containing list of WorkoutPlan entries\n"
-            "- WorkoutPlan: id, date, workouts (list of Workout objects)\n"
-            "- Workout: id, workout_name, series, reps, rest\n\n"
+            "- WorkoutList: workouts containing a flat list of ALL Workout objects\n"
+            "- Each Workout must have: `id` (unique identifier from `get_workout`), `date` (date of the workout), `workout_name`, `series`, `reps`, `rest`\n"
+            "- No nested structures - all workouts are at the same level in the workouts array\n\n"
             "Always prioritize safety, proper form, and progressive overload principles."
         ),
         name = "WorkoutUpdateAgent"
