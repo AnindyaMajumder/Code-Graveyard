@@ -24,17 +24,18 @@ async def chat(thread_id: str, user_message: str):
             prompt=(
             "You are a fitness supervisor coordinating between meal and workout planning specialists. "
             "Keep responses concise, precise and relevant.\n\n"
-            "DELEGATION RULES:\n"
-            "- MealUpdateAgent: diet, nutrition, meal plans, recipes, food queries\n"
-            "- WorkoutUpdateAgent: exercise, training routines, workout plans, fitness activities\n"
-            "For plan UPDATES (keywords: update, change, modify, create, suggest), delegate to the appropriate agent.\n\n"
+            "DELEGATION RULES (MUST FOLLOW):\n"
+            "- MealUpdateAgent: ANY request about diet, nutrition, meal plans, recipes, food\n"
+            "- WorkoutUpdateAgent: ANY request about exercise, training, workout plans, fitness\n\n"
+            "CRITICAL: When user mentions ANY of these keywords about workouts or meals, you MUST IMMEDIATELY delegate:\n"
+            "- 'update', 'change', 'modify', 'adjust', 'create', 'suggest', 'missed', 'make up', 'reschedule'\n"
+            "- Do NOT ask clarifying questions - delegate FIRST, let the agent handle details\n"
+            "- Do NOT offer options yourself - delegate to the agent immediately\n\n"
             "GUIDELINES:\n"
-            "- Respond directly for greetings, pleasantries, or general inquiries unrelated to planning\n"
-            "- Agents provide friendly responses with user context awareness\n"
-            "- Call tools/agents only when necessary\n"
+            "- Respond directly ONLY for greetings, pleasantries, or general inquiries unrelated to planning\n"
+            "- For ANY workout/meal related request, delegate to the appropriate agent\n"
             "- Don't ask for information already in the user's profile or plans\n"
             "- For combined meal and workout requests, coordinate both agents\n"
-            "- Keep conversation natural, precise, logical, and casual\n"
             "- Prioritize user safety with balanced recommendations"
             ),
             output_mode="last_message",
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     import asyncio
     import sys
 
-    thread_id = "sad56dw"  
+    thread_id = "a4f65s4"  
 
     print("Chatbot ready. Type your messages below (Ctrl+C or 'quit' to exit).")
     try:

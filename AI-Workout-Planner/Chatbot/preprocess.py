@@ -74,7 +74,7 @@ def profile() -> str:
 def workout() -> str:
     workout_data = _load_json_cached("../data/user_workout.json")
     
-    now_date = date(2025, 12, 8).strftime('%Y-%m-%d')
+    now_date = date(2025, 12, 8)
     # Filter daily_workouts for current and future dates
     filtered_daily = []
     for day in workout_data.get('daily_workouts', []):
@@ -106,14 +106,14 @@ def workout() -> str:
 def meal() -> str:
     meal_data = _load_json_cached("../data/user_meal.json")
     
-    now_date = date(2025, 12, 8).strftime('%Y-%m-%d')
+    now_date = date(2025, 12, 8)
     # Filter daily_meals for current date
-    filtered_daily = [day for day in meal_data.get('daily_meals', []) if day['date'] == now_date]
+    filtered_daily = [day for day in meal_data.get('daily_meals', []) if datetime.strptime(day['date'], '%Y-%m-%d').date() == now_date]
     if not filtered_daily:
         return "No meal plan for today."
     day = filtered_daily[0]
     # Count remaining days
-    remaining_days = sum(1 for d in meal_data.get('daily_meals', []) if d['date'] >= now_date)
+    remaining_days = sum(1 for d in meal_data.get('daily_meals', []) if datetime.strptime(d['date'], '%Y-%m-%d').date() >= now_date)
     # Remove completed from meal_slots and entries
     day_filtered = {
         'id': day['id'],
