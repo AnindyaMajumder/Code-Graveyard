@@ -73,6 +73,7 @@ def profile() -> str:
 
 def workout() -> str:
     workout_data = _load_json_cached("../data/user_workout.json")
+    # ----------------------------------------------------------------------------
     
     now_date = date.today()
     # Filter daily_workouts for current and future dates
@@ -105,6 +106,7 @@ def workout() -> str:
 
 def meal() -> str:
     meal_data = _load_json_cached("../data/user_meal.json")
+    # ----------------------------------------------------------------------------
     
     now_date = date.today()
     # Filter daily_meals for current date
