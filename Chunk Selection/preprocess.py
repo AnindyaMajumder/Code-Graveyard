@@ -12,7 +12,7 @@ def load_and_optimize_transcription(json_path):
     optimized = []
     for i, segment in enumerate(data):
         optimized.append({
-            "segment": i,
+            "segment_id": i,
             "text": segment.get("text", "").strip(),
             "start": segment.get("start_time", 0),
             "end": segment.get("end_time", 0)
