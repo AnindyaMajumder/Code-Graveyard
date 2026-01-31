@@ -46,4 +46,4 @@ def chunk_sum(percentage: float):
         print(chunk.choices[0].delta.content or "", end="")
 
 if __name__ == "__main__":
-    chunk_sum(100) 
+    chunk_sum(10) 

@@ -132,11 +132,28 @@ def generate_response(user_message, text_chunks, embeddings, prev_queries, mode=
 
 # ----- MAIN DRIVER -----
 if __name__ == "__main__":
+    import sys
+    
     start_time = time.time()
-    pdf_path = r"C:\Users\Anindya Majumder\Documents\AI-Chunk-Projects\Mental Health Chatbot\The_Apple_and_The_Stone (10) (1) (2).pdf"
+    
+    # Accept PDF path as command line argument or use default
+    if len(sys.argv) > 1:
+        pdf_path = sys.argv[1]
+    else:
+        pdf_path = "The_Apple_and_The_Stone.pdf"
+    
     cache_path = "pdf_embeddings.pkl"
 
     print("[1] Extracting PDF text...")
+    
+    # Check if PDF file exists
+    if not os.path.exists(pdf_path):
+        print(f"\n❌ Error: PDF file not found at '{pdf_path}'")
+        print("\nPlease provide a valid PDF file path.")
+        print("Usage: python chat.py [path_to_pdf_file]")
+        print("Example: python chat.py ./my_document.pdf")
+        sys.exit(1)
+    
     text = extract_text_from_pdf(pdf_path)
     chunks = chunk_text(text)
 
