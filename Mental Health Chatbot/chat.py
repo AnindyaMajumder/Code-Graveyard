@@ -140,7 +140,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         pdf_path = sys.argv[1]
     else:
-        pdf_path = "The_Apple_and_The_Stone.pdf"
+        pdf_path = "    "
     
     cache_path = "pdf_embeddings.pkl"
 
