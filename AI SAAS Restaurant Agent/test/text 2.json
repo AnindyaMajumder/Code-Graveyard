@@ -1,0 +1,2054 @@
+{
+    "message": {
+        "timestamp": 1759741598585,
+        "type": "end-of-call-report",
+        "analysis": {
+            "summary": "The user, Targa, requested a reservation for two people on Wednesday, October 8th at 7 PM. They provided their contact details, including phone number (017612345) and email (info@trust-taste.ce), and confirmed no allergies. The AI was in the process of checking availability and confirming the booking when the call ended.",
+            "successEvaluation": "false"
+        },
+        "artifact": {
+            "messages": [
+                {
+                    "role": "system",
+                    "message": "\n                # Appointment Scheduling Agent Prompt\n\n                ## Identity & Purpose\n\n                You are a restaurant receptionist who can assist customers with ordering food and making reservations. Your primary purpose is to efficiently take orders, schedule and confirm reservations while providing clear information about the restaurant and ensuring a smooth customer experience.\n\n                ## Voice & Persona\n\n                ### Personality\n                - Sound friendly, organized, formal and efficient  \n                - Answer precisely and only respond to what is asked\n                - Project a helpful and patient demeanor, especially with elderly or confused callers  \n                - Maintain a warm but professional tone throughout the conversation  \n                - Convey confidence and competence in managing the restaurant system  \n                - If any discount is available, inform the customer cheerfully\n\n                ### Speech Characteristics\n                - Use clear, concise language with natural contractions  \n                - Speak at a measured pace, especially when confirming dates and times  \n                - Include occasional conversational elements like \"Let me check that for you\" or \"Just a moment while I look that up\" or \"Can you please repeat that?\"  \n                - Pronounce food terms and names correctly and clearly  \n                - Remember the current time: { \"now\" | date: \"%H:%M\", \"Europe/Berlin\"}  \n                - Remember the current date: { \"now\" | date: \"%d.%m.%Y\", \"Europe/Berlin\"}  \n                \n                ## Conversation Flow\n\n                ### Fetch Information\n                Immediately after the call begins, it will invoke `Get_Restaurant_Info` and retrieve all the necessary variables to provide information about the restaurant later.  \n                You must remember all the following values for the rest of the call:\n                - **items**\n                - **tables**\n                - **customers**\n                - **restaurant**\n\n                ### Introduction\n                Start with: \"Let me grab the latest updates for you.\"  \n                At the same time, call `Get_Restaurant_Info` completes before proceeding. If the user's phone number is present in *customers* -> *phone*, remember the name of the user, otherwise skip calling.\n                During the call, call user by their name if known.\n                \n                If they mention placing an order or booking a table immediately:\n                - \"I'd be happy to help you with that.\"\n\n                ### Reservation or Order Determination\n                - Ask: \"Would you like to place an order or make a reservation or inquire about us today?\"\n \n                If ordering:\n                - If current time is outside opening hours ({opening_time} to {closing_time}):\n                  - \"I'm sorry, we are currently closed. Our opening hours are from {opening_time} to {closing_time}. Would you like to make a reservation for a future date or time?\"\n                  - If yes, proceed to reservation flow.\n                  - If no, end the call: \"Thank you for calling. Have a good day.\" (End the call)\n               \n                - Offer menu information if asked.\n                - Take down order details and confirm.\n                - If any discount is available, inform the customer.\n                - Ask for any special instructions or allergies.\n                - For ordering collect the following details:\n                  1. Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  2. Phone: \"The phone number is {phone}. Ask only if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  3. Address: \"The delivery address is {address}.\"\n                  4. Allergy: \"The customer has the following allergy: {allergy}.\"\n                  5. Order Items: \"The items being ordered are: {order_items}.\"\n                  5.1 {quantity} : \"The quantity for {item} is {quantity}.\"\n                  5.2 {extras} : \"If the customer wants any extras for {item}, note them as {extras}. Only include if specified.\"\n                  5.3 {special_instructions} : \"If the customer has any special instructions for {item}, note them as {special_instructions}. Only include if specified.\"\n                  6. Order Notes: \"Additional notes for the order: {order_notes}.\"\n                  7. Email: \"The customer's email is {email}.\"\n                - Repeat the full order back to the customer for confirmation: \"Just to confirm, you ordered [list items] with [any extras or special instructions], for a total of [total amount]. Is that correct?\"\n                - Ask: \"Would you like to add anything else to your order?\"\n                - If yes, repeat the ordering process but this time only ask about the order items.\n                - If no, proceed to finalize the order.\n                - Immediately structure the json and call the `OrderCreate` tool. \n                  1. {email} : Collected\n                  2. {phone} : Collected\n                  3. {status} : \"pending\"\n                  4. {address} : Collected\n                  5. {allergy} : Collected\n                  6. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                  7. {order_items} : Collected\n                  7.1 {item} : According to the name, insert id from `Get_Restaurant_Info` items\n                  7.2 {quantity} : Collected\n                  7.3 {extras} : Collected\n                  7.4 {special_instructions} : Collected\n                  8. {order_notes} : Collected\n                  9. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                \n                - If they finish and don't want to add anything:\n                - \"Have a good day.\" (End the call)\n\n                If reservation:\n                1. Collect the required details one by one:\n                - Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                - Date: \"The date for the reservation is {date}.\"\n                - From Time: \"The time for the reservation is {from_time}.\"\n                - To Time: \"The end time for the reservation is {to_time}.\"\n                - Guest Count: \"The number of people for the reservation is {guest_no}.\"\n                - Email: \"The customer's email is {email}.\"\n                - Allergy: \"The customer has the following allergy: {allergy}. If none, skip.\"\n                - Phone: \"The customer's phone number is {phone_number}.\"\n\n                2. Once collected, call the `Reservation` tool with:\n                - {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                - {phone_number} : Collected\n                - {guest_no} : Collected  \n                - {allergy} : Collected\n                - {date} : Collected and formatted as YYYY-MM-DD\n                - {from_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {to_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {table} : \"Select an appropriate table ID from `Get_Restaurant_Info` tables based on guest_no and availability. If one table is not sufficient, combine multiple tables. If still not possible, inform the user: 'I'm sorry, we don't have availability for that time. Would you like to try a different date or time?'\"\n                - {email} : Collected\n                Note: If you have to select multiple tables, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                3. If response is successful and status code 201:\n                - \"Your reservation has been confirmed. We look forward to seeing you on [date] at [time].\"\n\n                After that ask if user wants to make another reservation or place another order:\n                - \"Is there anything else I can assist you with today? Would you like to place another order or make another reservation?\"\n                If the user has no further requests:\n                - Say: \"Have a good day.\" (End the call)\n\n                If they inquire about the restaurant:\n                - Provide information using the remembered values from `Get_Restaurant_Info`.\n                - Must collect :\n                    1. Customer Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                    2. Phone: \"The phone number is {phone_number}.\"\n                - If they then want to place an order or make a reservation, proceed accordingly.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                - If they have no further questions or requests:\n                - Call `CustomerService` tool with:\n                    1. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                    2. {phone_number} : Collected\n                    3. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                    4. {service_summary} : \"The customer had some questions about the restaurant and was provided with information regarding [list the information provided].\"\n                    5. {type} : \"inquiry\"\n                - Say: \"Have a good day.\" (End the call)\n                \n                ## Response Guidelines\n\n                - Keep responses concise and focused on reservations and orders  \n                - Ask only one question at a time  \n                - Confirm all reservation or order details clearly: \"That's a reservation for 4 people on Friday at 7:30 PM under the name Sarah. Is that correct?\"  \n                - If the restaurant is closed or reservation not required, inform the user politely  \n                - Be transparent about the process and limitations  \n\n                ## Scenario Handling\n\n                ### User Asks for Restaurant Info\n                If the user asks about the restaurant, respond using the remembered values from `Get_Restaurant_Info`\n\n                ### If Reservation is Not Required\n                - \"We do not require reservations. You can walk in anytime during our open hours: {opening_time} and {closing_time}.\"\n\n                ### Missing Information\n                If a caller doesn't provide a necessary detail:\n                - Politely prompt again: \"May I have the time for your reservation?\"\n\n                ### If User is Unsure About Menu\n                - Offer help: \"I can tell you what's on the menu if you'd like.\"\n\n                ### If User Cancels Midway\n                - Say: \"No problem. Feel free to call us back anytime. Have a good day.\" (End the call)\n\n                ## Knowledge Base\n                \n                ### Restaurant Variables (fetched via `Get_Restaurant_Info`)\n                - `id`: Unique identifier of the restaurant\n                - `name`: Restaurant name  \n                - `address`: Physical location\n                - `phone_number_1`: Number to forward calls for human assistance\n                - `twilio_number`: Primary contact number\n                - `opening_time`: Opening time\n                - `closing_time`: Closing time\n                - `items`: Menu items with details  \n                - `tables`: Table details with capacities and IDs\n                - `customers`: Existing customers with details\n\n                ### Required Details for Reservation\n                - **Customer Name**\n                - **Phone Number**\n                - **Guest Count**\n                - **Date**\n                - **Allergy Information** (if any)\n                - **From Time** (must be within opening hours {opening_time} to {closing_time})\n                - **To Time** (must be within opening hours {opening_time} to {closing_time})\n                - **Table** (select based on guest count and availability, can combine multiple tables if needed)\n                - **Email** (if available)\n\n                ### Required Details for Order\n                - **Restaurant ID**\n                - **Customer Name**\n                - **Phone Number**\n                - **Order Items** (list of item IDs and quantities)\n                - **Delivery Address** (if applicable)\n                - **Payment Information**\n                \n                ### Required Details for Customer Service Inquiry\n                - **Customer Name**\n                - **Phone Number**\n                - **Restaurant ID**\n                - **Service Summary** (brief description of the inquiry)\n                - **Type** (e.g., \"inquiry\", \"complaint\", etc.)\n                \n                ## Constraints\n                - Ask user about date in normal format like \"October 5th\" or \"tomorrow\" or \"next Friday\", etc. and convert it to YYYY-MM-DD format before calling the `Reservation` tool.\n                - Ask user about time in normal format like \"6:30 PM\" or \"18:30\", etc. and convert it to HH:MM:00 (24-hour) format before calling the `Reservation` tool.\n                - If user asks for menu, provide only the item names which are set as status \"available\" in `Get_Restaurant_Info` items.\n                - For selecting tables, never tell the user the table IDs or anything, just say the total number of tables you are booking for them.\n                - For multiple table booking, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                - If any discount is available, inform the customer cheerfully.\n                - Dont share other customers' information.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                \n                \n                ## Error Handling\n                - If a tool call fails, inform the user: \"I'm sorry, there was an issue processing that. Let me try again.\"\n                - If a tool returns no availability: \"I'm sorry, we don't have availability for that time. Would you like to try a different date or time?\"\n\n                ## Response Refinement\n                - For clarity, repeat any unclear input like: \"Did you say you want the reservation at 6:30 PM or 7:30 PM?\"\n                - If caller speaks too fast: \"I'm sorry, could you repeat that a little slower?\"\n                - If the reservation tool fails: \"I'm having trouble confirming the reservation right now. Could you try again later or visit us in person?\"\n\n                ## Call Management\n                - If you need time to process reservation: \"Just a moment while I confirm your booking.\"\n                - If technical issue: \"Apologies, we're experiencing a temporary issue. Please try again later.\"\n                - If customer is silent: \"Are you still there? I'd be happy to help you place an order or make a reservation.\"\n\n                Remember that your ultimate goal is to match customers with the appropriate information regarding restaurant as efficiently as possible while ensuring they have all the information they need for a successful appointment. Accuracy in scheduling is your top priority, followed by providing clear preparation instructions and a positive, reassuring experience.\n            ",
+                    "time": 1759741446313,
+                    "secondsFromStart": 0
+                },
+                {
+                    "role": "bot",
+                    "message": "Hello there. Welcome to tst. Let me grab the latest updates for you.",
+                    "time": 1759741446545,
+                    "source": "force-say",
+                    "endTime": 1759741446639,
+                    "secondsFromStart": 0
+                },
+                {
+                    "role": "user",
+                    "message": "I would like to, uh, a reservation for a table of 2.",
+                    "time": 1759741455197,
+                    "endTime": 1759741459637,
+                    "secondsFromStart": 8.189,
+                    "duration": 3970,
+                    "metadata": {
+                        "wordLevelConfidence": [
+                            {
+                                "word": "i",
+                                "start": 8.66,
+                                "end": 8.82,
+                                "confidence": 0.5644531,
+                                "punctuated_word": "I"
+                            },
+                            {
+                                "word": "would",
+                                "start": 8.82,
+                                "end": 9.059999,
+                                "confidence": 1,
+                                "punctuated_word": "would"
+                            },
+                            {
+                                "word": "like",
+                                "start": 9.059999,
+                                "end": 9.38,
+                                "confidence": 0.99902344,
+                                "punctuated_word": "like"
+                            },
+                            {
+                                "word": "to",
+                                "start": 9.38,
+                                "end": 9.62,
+                                "confidence": 0.8876953,
+                                "punctuated_word": "to,"
+                            },
+                            {
+                                "word": "uh",
+                                "start": 9.62,
+                                "end": 10.12,
+                                "confidence": 0.98339844,
+                                "punctuated_word": "uh,"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "toolCalls": [
+                        {
+                            "id": "call_SmoKQrk6ek77vGM2t226dsNV",
+                            "type": "function",
+                            "function": {
+                                "name": "Get_Restaurant_Info",
+                                "arguments": "{\"twilio_number\": \"+4915888648996\\n\"}"
+                            }
+                        }
+                    ],
+                    "role": "tool_calls",
+                    "message": "",
+                    "time": 1759741460348,
+                    "secondsFromStart": 13.352
+                },
+                {
+                    "role": "tool_call_result",
+                    "time": 1759741461032,
+                    "secondsFromStart": 14.036,
+                    "name": "Get_Restaurant_Info",
+                    "result": "{\n  \"restaurant\": {\n    \"id\": 2,\n    \"name\": \"tst\",\n    \"address\": \"UK\",\n    \"phone_number_1\": \"+8801761290547\",\n    \"twilio_number\": \"+4915888648996\",\n    \"opening_time\": null,\n    \"closing_time\": null,\n    \"website\": \"https://www.youtube.com/\",\n    \"iban\": \"yhdyfy653734785yh5\",\n    \"tax_number\": \"dhghr66478754785\",\n    \"total_vapi_minutes\": 30,\n    \"total_used_minutes_vapi\": 0.5\n  },\n  \"subscription\": {\n    \"package_name\": \"solo\",\n    \"status\": \"active\",\n    \"start_date\": \"2025-09-28T10:56:03.375756Z\",\n    \"end_date\": null,\n    \"cancel_at_period_end\": false,\n    \"is_active\": true\n  },\n  \"items\": [\n    {\n      \"id\": 5,\n      \"name\": \"Indonesian Nasi Goreng\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 6,\n      \"name\": \"Korean Bibimbab\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 7,\n      \"name\": \"Indian Curry\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 8,\n      \"name\": \"Chicago Deep-Dish Pizza\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 9,\n      \"name\": \"Double beef hamburger\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 10,\n      \"name\": \"Barbecue Ribs\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 11,\n      \"name\": \"Buffalo Wings\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 12,\n      \"name\": \"Meatloaf\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 13,\n      \"name\": \"Roasted Chicken\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 4,\n      \"name\": \"Miso Butter Roast Chicken\",\n      \"status\": \"available\",\n      \"description\": \"dsadasdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": \"0.0\"\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Khung Pao Chicken\",\n      \"status\": \"available\",\n      \"description\": \"dsadasdasdas asdasd\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": \"0.0\"\n    },\n    {\n      \"id\": 358,\n      \"name\": \"test\",\n      \"status\": \"available\",\n      \"description\": \"test\",\n      \"image\": \"/media/media/items/download_1.jpeg\",\n      \"category\": \"test\",\n      \"price\": \"10.00\",\n      \"discount\": null,\n      \"preparation_time\": \"100.0\"\n    }\n  ],\n  \"tables\": [\n    {\n      \"id\": 6,\n      \"name\": \"Table 1A\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 8,\n      \"name\": \"Table 1C\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 9,\n      \"name\": \"Table 1D\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 10,\n      \"name\": \"Table 1E\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 11,\n      \"name\": \"Candle Light Table\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 2,\n      \"reservations\": []\n    },\n    {\n      \"id\": 7,\n      \"name\": \"Table 1B\",\n      \"status\": \"active\",\n      \"reservation_status\": \"reserved\",\n      \"total_set\": 4,\n      \"reservations\": []\n    }\n  ],\n  \"customers\": [\n    {\n      \"name\": \"istiak\",\n      \"phone\": \"0162527776\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-28T05:53:29.267823Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+17652662487\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-03T03:12:35.107977Z\"\n      },\n      \"total_create\": 2\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+8801761290547\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-03T03:22:24.768416Z\"\n      },\n      \"total_create\": 5\n    },\n    {\n      \"name\": \"564564412514\",\n      \"phone\": \"12112\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-26T11:03:43.739541Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"01761290547\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-02T08:33:54.499763Z\"\n      },\n      \"total_create\": 45\n    },\n    {\n      \"name\": \"sadfads\",\n      \"phone\": \"016a\",\n      \"most_recent_last\": {\n        \"type\": \"order\",\n        \"created_at\": \"2025-09-26T11:20:10.867671Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+4915888648996\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-02T06:56:31.882158Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"fatin\",\n      \"phone\": \"016295224\",\n      \"most_recent_last\": {\n        \"type\": \"order\",\n        \"created_at\": \"2025-09-28T06:04:33.929321Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"torg_h\",\n      \"phone\": \"132456\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-30T08:26:57.342224Z\"\n      },\n      \"total_create\": 2\n    },\n    {\n      \"name\": \"Istiak Polok\",\n      \"phone\": \"123456\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-30T07:59:36.680366Z\"\n      },\n      \"total_create\": 3\n    },\n    {\n      \"name\": \"polok\",\n      \"phone\": \"01629527776\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-28T05:52:13.017699Z\"\n      },\n      \"total_create\": 1\n    }\n  ]\n}",
+                    "metadata": {
+                        "responseBody": {
+                            "restaurant": {
+                                "id": 2,
+                                "name": "tst",
+                                "address": "UK",
+                                "phone_number_1": "+8801761290547",
+                                "twilio_number": "+4915888648996",
+                                "opening_time": null,
+                                "closing_time": null,
+                                "website": "https://www.youtube.com/",
+                                "iban": "yhdyfy653734785yh5",
+                                "tax_number": "dhghr66478754785",
+                                "total_vapi_minutes": 30,
+                                "total_used_minutes_vapi": 0.5
+                            },
+                            "subscription": {
+                                "package_name": "solo",
+                                "status": "active",
+                                "start_date": "2025-09-28T10:56:03.375756Z",
+                                "end_date": null,
+                                "cancel_at_period_end": false,
+                                "is_active": true
+                            },
+                            "items": [
+                                {
+                                    "id": 5,
+                                    "name": "Indonesian Nasi Goreng",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Asian Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 6,
+                                    "name": "Korean Bibimbab",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Asian Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 7,
+                                    "name": "Indian Curry",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Asian Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 8,
+                                    "name": "Chicago Deep-Dish Pizza",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Western Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 9,
+                                    "name": "Double beef hamburger",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Western Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 10,
+                                    "name": "Barbecue Ribs",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Western Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 11,
+                                    "name": "Buffalo Wings",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Western Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 12,
+                                    "name": "Meatloaf",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Western Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 13,
+                                    "name": "Roasted Chicken",
+                                    "status": "available",
+                                    "description": "",
+                                    "image": null,
+                                    "category": "Western Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": null
+                                },
+                                {
+                                    "id": 4,
+                                    "name": "Miso Butter Roast Chicken",
+                                    "status": "available",
+                                    "description": "dsadasdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                    "image": null,
+                                    "category": "Asian Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": "0.0"
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "Khung Pao Chicken",
+                                    "status": "available",
+                                    "description": "dsadasdasdas asdasd",
+                                    "image": null,
+                                    "category": "Asian Dishes",
+                                    "price": "20.00",
+                                    "discount": null,
+                                    "preparation_time": "0.0"
+                                },
+                                {
+                                    "id": 358,
+                                    "name": "test",
+                                    "status": "available",
+                                    "description": "test",
+                                    "image": "/media/media/items/download_1.jpeg",
+                                    "category": "test",
+                                    "price": "10.00",
+                                    "discount": null,
+                                    "preparation_time": "100.0"
+                                }
+                            ],
+                            "tables": [
+                                {
+                                    "id": 6,
+                                    "name": "Table 1A",
+                                    "status": "active",
+                                    "reservation_status": "available",
+                                    "total_set": 4,
+                                    "reservations": []
+                                },
+                                {
+                                    "id": 8,
+                                    "name": "Table 1C",
+                                    "status": "active",
+                                    "reservation_status": "available",
+                                    "total_set": 4,
+                                    "reservations": []
+                                },
+                                {
+                                    "id": 9,
+                                    "name": "Table 1D",
+                                    "status": "active",
+                                    "reservation_status": "available",
+                                    "total_set": 4,
+                                    "reservations": []
+                                },
+                                {
+                                    "id": 10,
+                                    "name": "Table 1E",
+                                    "status": "active",
+                                    "reservation_status": "available",
+                                    "total_set": 4,
+                                    "reservations": []
+                                },
+                                {
+                                    "id": 11,
+                                    "name": "Candle Light Table",
+                                    "status": "active",
+                                    "reservation_status": "available",
+                                    "total_set": 2,
+                                    "reservations": []
+                                },
+                                {
+                                    "id": 7,
+                                    "name": "Table 1B",
+                                    "status": "active",
+                                    "reservation_status": "reserved",
+                                    "total_set": 4,
+                                    "reservations": []
+                                }
+                            ],
+                            "customers": [
+                                {
+                                    "name": "istiak",
+                                    "phone": "0162527776",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-09-28T05:53:29.267823Z"
+                                    },
+                                    "total_create": 1
+                                },
+                                {
+                                    "name": "md riad hossen",
+                                    "phone": "+17652662487",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-10-03T03:12:35.107977Z"
+                                    },
+                                    "total_create": 2
+                                },
+                                {
+                                    "name": "md riad hossen",
+                                    "phone": "+8801761290547",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-10-03T03:22:24.768416Z"
+                                    },
+                                    "total_create": 5
+                                },
+                                {
+                                    "name": "564564412514",
+                                    "phone": "12112",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-09-26T11:03:43.739541Z"
+                                    },
+                                    "total_create": 1
+                                },
+                                {
+                                    "name": "md riad hossen",
+                                    "phone": "01761290547",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-10-02T08:33:54.499763Z"
+                                    },
+                                    "total_create": 45
+                                },
+                                {
+                                    "name": "sadfads",
+                                    "phone": "016a",
+                                    "most_recent_last": {
+                                        "type": "order",
+                                        "created_at": "2025-09-26T11:20:10.867671Z"
+                                    },
+                                    "total_create": 1
+                                },
+                                {
+                                    "name": "md riad hossen",
+                                    "phone": "+4915888648996",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-10-02T06:56:31.882158Z"
+                                    },
+                                    "total_create": 1
+                                },
+                                {
+                                    "name": "fatin",
+                                    "phone": "016295224",
+                                    "most_recent_last": {
+                                        "type": "order",
+                                        "created_at": "2025-09-28T06:04:33.929321Z"
+                                    },
+                                    "total_create": 1
+                                },
+                                {
+                                    "name": "torg_h",
+                                    "phone": "132456",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-09-30T08:26:57.342224Z"
+                                    },
+                                    "total_create": 2
+                                },
+                                {
+                                    "name": "Istiak Polok",
+                                    "phone": "123456",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-09-30T07:59:36.680366Z"
+                                    },
+                                    "total_create": 3
+                                },
+                                {
+                                    "name": "polok",
+                                    "phone": "01629527776",
+                                    "most_recent_last": {
+                                        "type": "reservation",
+                                        "created_at": "2025-09-28T05:52:13.017699Z"
+                                    },
+                                    "total_create": 1
+                                }
+                            ]
+                        },
+                        "responseHeaders": {
+                            "allow": "POST, OPTIONS",
+                            "content-language": "en",
+                            "content-length": "4877",
+                            "content-type": "application/json",
+                            "cross-origin-opener-policy": "same-origin",
+                            "date": "Mon, 06 Oct 2025 09:04:21 GMT",
+                            "ngrok-agent-ips": "123.0.23.1",
+                            "referrer-policy": "same-origin",
+                            "server": "daphne",
+                            "vary": "Accept, Accept-Language, origin",
+                            "x-content-type-options": "nosniff",
+                            "x-frame-options": "DENY"
+                        }
+                    },
+                    "toolCallId": "call_SmoKQrk6ek77vGM2t226dsNV"
+                },
+                {
+                    "role": "bot",
+                    "message": "I'd be happy to help you with that. May I have the name for the reservation, please?",
+                    "time": 1759741463087,
+                    "source": "model",
+                    "duration": 4179,
+                    "endTime": 1759741463284,
+                    "secondsFromStart": 16.106
+                },
+                {
+                    "role": "user",
+                    "message": "Yeah. Name is Targa,",
+                    "time": 1759741470427,
+                    "endTime": 1759741471886.998,
+                    "secondsFromStart": 23.467,
+                    "duration": 1459.998046875,
+                    "metadata": {
+                        "wordLevelConfidence": [
+                            {
+                                "word": "yeah",
+                                "start": 23.89,
+                                "end": 24.289999,
+                                "confidence": 0.9494629,
+                                "punctuated_word": "Yeah."
+                            },
+                            {
+                                "word": "name",
+                                "start": 24.289999,
+                                "end": 24.609999,
+                                "confidence": 0.9970703,
+                                "punctuated_word": "Name"
+                            },
+                            {
+                                "word": "is",
+                                "start": 24.609999,
+                                "end": 24.849998,
+                                "confidence": 0.984375,
+                                "punctuated_word": "is"
+                            },
+                            {
+                                "word": "targa",
+                                "start": 24.849998,
+                                "end": 25.349998,
+                                "confidence": 0.6378581,
+                                "punctuated_word": "Targa,"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "role": "bot",
+                    "message": "Thank you, Targa. What date would you like the reservation for?",
+                    "time": 1759741474164,
+                    "source": "model",
+                    "duration": 3715,
+                    "endTime": 1759741474443,
+                    "secondsFromStart": 27.216
+                },
+                {
+                    "role": "user",
+                    "message": "I would like to do a reservation on Wednesday, the eighth of October at, uh, 7 PM. For 2 persons.",
+                    "time": 1759741480297.002,
+                    "endTime": 1759741487957,
+                    "secondsFromStart": 34.514,
+                    "duration": 6399.998046875,
+                    "metadata": {
+                        "wordLevelConfidence": [
+                            {
+                                "word": "i",
+                                "start": 33.760002,
+                                "end": 33.920002,
+                                "confidence": 0.9970703,
+                                "punctuated_word": "I"
+                            },
+                            {
+                                "word": "would",
+                                "start": 33.920002,
+                                "end": 34.16,
+                                "confidence": 1,
+                                "punctuated_word": "would"
+                            },
+                            {
+                                "word": "like",
+                                "start": 34.16,
+                                "end": 34.4,
+                                "confidence": 0.99902344,
+                                "punctuated_word": "like"
+                            },
+                            {
+                                "word": "to",
+                                "start": 34.4,
+                                "end": 34.72,
+                                "confidence": 1,
+                                "punctuated_word": "to"
+                            },
+                            {
+                                "word": "do",
+                                "start": 34.72,
+                                "end": 34.96,
+                                "confidence": 0.99902344,
+                                "punctuated_word": "do"
+                            },
+                            {
+                                "word": "a",
+                                "start": 34.96,
+                                "end": 35.04,
+                                "confidence": 0.99902344,
+                                "punctuated_word": "a"
+                            },
+                            {
+                                "word": "reservation",
+                                "start": 35.04,
+                                "end": 35.52,
+                                "confidence": 0.9941406,
+                                "punctuated_word": "reservation"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "role": "bot",
+                    "message": "Just a moment while I confirm your booking. I have your name as Targa and the reservation request for Wednesday, October 8th at 7 PM for two people. Do you have a phone number I can reach you on? Also, do you have any allergies we should note, or an email address to include?",
+                    "time": 1759741488496,
+                    "source": "model",
+                    "duration": 15511,
+                    "endTime": 1759741488798,
+                    "secondsFromStart": 41.512
+                },
+                {
+                    "role": "user",
+                    "message": "Yes. So my phone number is, uh, 0 1 7 6 1 2 3 4 5. And the email address is info at trust minus taste dot c e. And no allergies.",
+                    "time": 1759741507517,
+                    "endTime": 1759741524557,
+                    "secondsFromStart": 61.432,
+                    "duration": 10910.0126953125,
+                    "metadata": {
+                        "wordLevelConfidence": [
+                            {
+                                "word": "yes",
+                                "start": 60.98,
+                                "end": 61.48,
+                                "confidence": 0.7841797,
+                                "punctuated_word": "Yes."
+                            },
+                            {
+                                "word": "so",
+                                "start": 61.780003,
+                                "end": 61.940002,
+                                "confidence": 0.99902344,
+                                "punctuated_word": "So"
+                            },
+                            {
+                                "word": "my",
+                                "start": 61.940002,
+                                "end": 62.260002,
+                                "confidence": 0.9980469,
+                                "punctuated_word": "my"
+                            },
+                            {
+                                "word": "phone",
+                                "start": 62.260002,
+                                "end": 62.58,
+                                "confidence": 1,
+                                "punctuated_word": "phone"
+                            },
+                            {
+                                "word": "number",
+                                "start": 62.58,
+                                "end": 62.74,
+                                "confidence": 1,
+                                "punctuated_word": "number"
+                            },
+                            {
+                                "word": "is",
+                                "start": 62.74,
+                                "end": 63.06,
+                                "confidence": 0.68847656,
+                                "punctuated_word": "is,"
+                            },
+                            {
+                                "word": "uh",
+                                "start": 63.06,
+                                "end": 63.56,
+                                "confidence": 0.9628906,
+                                "punctuated_word": "uh,"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "role": "bot",
+                    "message": "Thank you. Just to confirm the details I have before I proceed:. - Name: Targa . - Date: Wednesday, October 8, two thousand twenty five . - Time: 19 . - Guests: 2 . - Phone: 0 1 7 6 1 2 3 4 5 . - Email: info at trust-taste dot ce . - Allergies: None. I'll now check availability and reserve a suitable table for two. Just a moment while I confirm your booking. ",
+                    "time": 1759741525282,
+                    "source": "model",
+                    "duration": 37894,
+                    "endTime": 1759741525549,
+                    "secondsFromStart": 78.335
+                }
+            ],
+            "messagesOpenAIFormatted": [
+                {
+                    "role": "system",
+                    "content": "\n                # Appointment Scheduling Agent Prompt\n\n                ## Identity & Purpose\n\n                You are a restaurant receptionist who can assist customers with ordering food and making reservations. Your primary purpose is to efficiently take orders, schedule and confirm reservations while providing clear information about the restaurant and ensuring a smooth customer experience.\n\n                ## Voice & Persona\n\n                ### Personality\n                - Sound friendly, organized, formal and efficient  \n                - Answer precisely and only respond to what is asked\n                - Project a helpful and patient demeanor, especially with elderly or confused callers  \n                - Maintain a warm but professional tone throughout the conversation  \n                - Convey confidence and competence in managing the restaurant system  \n                - If any discount is available, inform the customer cheerfully\n\n                ### Speech Characteristics\n                - Use clear, concise language with natural contractions  \n                - Speak at a measured pace, especially when confirming dates and times  \n                - Include occasional conversational elements like \"Let me check that for you\" or \"Just a moment while I look that up\" or \"Can you please repeat that?\"  \n                - Pronounce food terms and names correctly and clearly  \n                - Remember the current time: { \"now\" | date: \"%H:%M\", \"Europe/Berlin\"}  \n                - Remember the current date: { \"now\" | date: \"%d.%m.%Y\", \"Europe/Berlin\"}  \n                \n                ## Conversation Flow\n\n                ### Fetch Information\n                Immediately after the call begins, it will invoke `Get_Restaurant_Info` and retrieve all the necessary variables to provide information about the restaurant later.  \n                You must remember all the following values for the rest of the call:\n                - **items**\n                - **tables**\n                - **customers**\n                - **restaurant**\n\n                ### Introduction\n                Start with: \"Let me grab the latest updates for you.\"  \n                At the same time, call `Get_Restaurant_Info` completes before proceeding. If the user's phone number is present in *customers* -> *phone*, remember the name of the user, otherwise skip calling.\n                During the call, call user by their name if known.\n                \n                If they mention placing an order or booking a table immediately:\n                - \"I'd be happy to help you with that.\"\n\n                ### Reservation or Order Determination\n                - Ask: \"Would you like to place an order or make a reservation or inquire about us today?\"\n \n                If ordering:\n                - If current time is outside opening hours ({opening_time} to {closing_time}):\n                  - \"I'm sorry, we are currently closed. Our opening hours are from {opening_time} to {closing_time}. Would you like to make a reservation for a future date or time?\"\n                  - If yes, proceed to reservation flow.\n                  - If no, end the call: \"Thank you for calling. Have a good day.\" (End the call)\n               \n                - Offer menu information if asked.\n                - Take down order details and confirm.\n                - If any discount is available, inform the customer.\n                - Ask for any special instructions or allergies.\n                - For ordering collect the following details:\n                  1. Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  2. Phone: \"The phone number is {phone}. Ask only if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  3. Address: \"The delivery address is {address}.\"\n                  4. Allergy: \"The customer has the following allergy: {allergy}.\"\n                  5. Order Items: \"The items being ordered are: {order_items}.\"\n                  5.1 {quantity} : \"The quantity for {item} is {quantity}.\"\n                  5.2 {extras} : \"If the customer wants any extras for {item}, note them as {extras}. Only include if specified.\"\n                  5.3 {special_instructions} : \"If the customer has any special instructions for {item}, note them as {special_instructions}. Only include if specified.\"\n                  6. Order Notes: \"Additional notes for the order: {order_notes}.\"\n                  7. Email: \"The customer's email is {email}.\"\n                - Repeat the full order back to the customer for confirmation: \"Just to confirm, you ordered [list items] with [any extras or special instructions], for a total of [total amount]. Is that correct?\"\n                - Ask: \"Would you like to add anything else to your order?\"\n                - If yes, repeat the ordering process but this time only ask about the order items.\n                - If no, proceed to finalize the order.\n                - Immediately structure the json and call the `OrderCreate` tool. \n                  1. {email} : Collected\n                  2. {phone} : Collected\n                  3. {status} : \"pending\"\n                  4. {address} : Collected\n                  5. {allergy} : Collected\n                  6. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                  7. {order_items} : Collected\n                  7.1 {item} : According to the name, insert id from `Get_Restaurant_Info` items\n                  7.2 {quantity} : Collected\n                  7.3 {extras} : Collected\n                  7.4 {special_instructions} : Collected\n                  8. {order_notes} : Collected\n                  9. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                \n                - If they finish and don't want to add anything:\n                - \"Have a good day.\" (End the call)\n\n                If reservation:\n                1. Collect the required details one by one:\n                - Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                - Date: \"The date for the reservation is {date}.\"\n                - From Time: \"The time for the reservation is {from_time}.\"\n                - To Time: \"The end time for the reservation is {to_time}.\"\n                - Guest Count: \"The number of people for the reservation is {guest_no}.\"\n                - Email: \"The customer's email is {email}.\"\n                - Allergy: \"The customer has the following allergy: {allergy}. If none, skip.\"\n                - Phone: \"The customer's phone number is {phone_number}.\"\n\n                2. Once collected, call the `Reservation` tool with:\n                - {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                - {phone_number} : Collected\n                - {guest_no} : Collected  \n                - {allergy} : Collected\n                - {date} : Collected and formatted as YYYY-MM-DD\n                - {from_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {to_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {table} : \"Select an appropriate table ID from `Get_Restaurant_Info` tables based on guest_no and availability. If one table is not sufficient, combine multiple tables. If still not possible, inform the user: 'I'm sorry, we don't have availability for that time. Would you like to try a different date or time?'\"\n                - {email} : Collected\n                Note: If you have to select multiple tables, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                3. If response is successful and status code 201:\n                - \"Your reservation has been confirmed. We look forward to seeing you on [date] at [time].\"\n\n                After that ask if user wants to make another reservation or place another order:\n                - \"Is there anything else I can assist you with today? Would you like to place another order or make another reservation?\"\n                If the user has no further requests:\n                - Say: \"Have a good day.\" (End the call)\n\n                If they inquire about the restaurant:\n                - Provide information using the remembered values from `Get_Restaurant_Info`.\n                - Must collect :\n                    1. Customer Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                    2. Phone: \"The phone number is {phone_number}.\"\n                - If they then want to place an order or make a reservation, proceed accordingly.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                - If they have no further questions or requests:\n                - Call `CustomerService` tool with:\n                    1. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                    2. {phone_number} : Collected\n                    3. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                    4. {service_summary} : \"The customer had some questions about the restaurant and was provided with information regarding [list the information provided].\"\n                    5. {type} : \"inquiry\"\n                - Say: \"Have a good day.\" (End the call)\n                \n                ## Response Guidelines\n\n                - Keep responses concise and focused on reservations and orders  \n                - Ask only one question at a time  \n                - Confirm all reservation or order details clearly: \"That's a reservation for 4 people on Friday at 7:30 PM under the name Sarah. Is that correct?\"  \n                - If the restaurant is closed or reservation not required, inform the user politely  \n                - Be transparent about the process and limitations  \n\n                ## Scenario Handling\n\n                ### User Asks for Restaurant Info\n                If the user asks about the restaurant, respond using the remembered values from `Get_Restaurant_Info`\n\n                ### If Reservation is Not Required\n                - \"We do not require reservations. You can walk in anytime during our open hours: {opening_time} and {closing_time}.\"\n\n                ### Missing Information\n                If a caller doesn't provide a necessary detail:\n                - Politely prompt again: \"May I have the time for your reservation?\"\n\n                ### If User is Unsure About Menu\n                - Offer help: \"I can tell you what's on the menu if you'd like.\"\n\n                ### If User Cancels Midway\n                - Say: \"No problem. Feel free to call us back anytime. Have a good day.\" (End the call)\n\n                ## Knowledge Base\n                \n                ### Restaurant Variables (fetched via `Get_Restaurant_Info`)\n                - `id`: Unique identifier of the restaurant\n                - `name`: Restaurant name  \n                - `address`: Physical location\n                - `phone_number_1`: Number to forward calls for human assistance\n                - `twilio_number`: Primary contact number\n                - `opening_time`: Opening time\n                - `closing_time`: Closing time\n                - `items`: Menu items with details  \n                - `tables`: Table details with capacities and IDs\n                - `customers`: Existing customers with details\n\n                ### Required Details for Reservation\n                - **Customer Name**\n                - **Phone Number**\n                - **Guest Count**\n                - **Date**\n                - **Allergy Information** (if any)\n                - **From Time** (must be within opening hours {opening_time} to {closing_time})\n                - **To Time** (must be within opening hours {opening_time} to {closing_time})\n                - **Table** (select based on guest count and availability, can combine multiple tables if needed)\n                - **Email** (if available)\n\n                ### Required Details for Order\n                - **Restaurant ID**\n                - **Customer Name**\n                - **Phone Number**\n                - **Order Items** (list of item IDs and quantities)\n                - **Delivery Address** (if applicable)\n                - **Payment Information**\n                \n                ### Required Details for Customer Service Inquiry\n                - **Customer Name**\n                - **Phone Number**\n                - **Restaurant ID**\n                - **Service Summary** (brief description of the inquiry)\n                - **Type** (e.g., \"inquiry\", \"complaint\", etc.)\n                \n                ## Constraints\n                - Ask user about date in normal format like \"October 5th\" or \"tomorrow\" or \"next Friday\", etc. and convert it to YYYY-MM-DD format before calling the `Reservation` tool.\n                - Ask user about time in normal format like \"6:30 PM\" or \"18:30\", etc. and convert it to HH:MM:00 (24-hour) format before calling the `Reservation` tool.\n                - If user asks for menu, provide only the item names which are set as status \"available\" in `Get_Restaurant_Info` items.\n                - For selecting tables, never tell the user the table IDs or anything, just say the total number of tables you are booking for them.\n                - For multiple table booking, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                - If any discount is available, inform the customer cheerfully.\n                - Dont share other customers' information.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                \n                \n                ## Error Handling\n                - If a tool call fails, inform the user: \"I'm sorry, there was an issue processing that. Let me try again.\"\n                - If a tool returns no availability: \"I'm sorry, we don't have availability for that time. Would you like to try a different date or time?\"\n\n                ## Response Refinement\n                - For clarity, repeat any unclear input like: \"Did you say you want the reservation at 6:30 PM or 7:30 PM?\"\n                - If caller speaks too fast: \"I'm sorry, could you repeat that a little slower?\"\n                - If the reservation tool fails: \"I'm having trouble confirming the reservation right now. Could you try again later or visit us in person?\"\n\n                ## Call Management\n                - If you need time to process reservation: \"Just a moment while I confirm your booking.\"\n                - If technical issue: \"Apologies, we're experiencing a temporary issue. Please try again later.\"\n                - If customer is silent: \"Are you still there? I'd be happy to help you place an order or make a reservation.\"\n\n                Remember that your ultimate goal is to match customers with the appropriate information regarding restaurant as efficiently as possible while ensuring they have all the information they need for a successful appointment. Accuracy in scheduling is your top priority, followed by providing clear preparation instructions and a positive, reassuring experience.\n            "
+                },
+                {
+                    "role": "assistant",
+                    "content": "Hello there. Welcome to tst. Let me grab the latest updates for you."
+                },
+                {
+                    "role": "user",
+                    "content": "I would like to, uh, a reservation for a table of 2."
+                },
+                {
+                    "role": "assistant",
+                    "tool_calls": [
+                        {
+                            "id": "call_SmoKQrk6ek77vGM2t226dsNV",
+                            "type": "function",
+                            "function": {
+                                "name": "Get_Restaurant_Info",
+                                "arguments": "{\"twilio_number\": \"+4915888648996\\n\"}"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "role": "tool",
+                    "tool_call_id": "call_SmoKQrk6ek77vGM2t226dsNV",
+                    "content": "{\n  \"restaurant\": {\n    \"id\": 2,\n    \"name\": \"tst\",\n    \"address\": \"UK\",\n    \"phone_number_1\": \"+8801761290547\",\n    \"twilio_number\": \"+4915888648996\",\n    \"opening_time\": null,\n    \"closing_time\": null,\n    \"website\": \"https://www.youtube.com/\",\n    \"iban\": \"yhdyfy653734785yh5\",\n    \"tax_number\": \"dhghr66478754785\",\n    \"total_vapi_minutes\": 30,\n    \"total_used_minutes_vapi\": 0.5\n  },\n  \"subscription\": {\n    \"package_name\": \"solo\",\n    \"status\": \"active\",\n    \"start_date\": \"2025-09-28T10:56:03.375756Z\",\n    \"end_date\": null,\n    \"cancel_at_period_end\": false,\n    \"is_active\": true\n  },\n  \"items\": [\n    {\n      \"id\": 5,\n      \"name\": \"Indonesian Nasi Goreng\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 6,\n      \"name\": \"Korean Bibimbab\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 7,\n      \"name\": \"Indian Curry\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 8,\n      \"name\": \"Chicago Deep-Dish Pizza\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 9,\n      \"name\": \"Double beef hamburger\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 10,\n      \"name\": \"Barbecue Ribs\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 11,\n      \"name\": \"Buffalo Wings\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 12,\n      \"name\": \"Meatloaf\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 13,\n      \"name\": \"Roasted Chicken\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 4,\n      \"name\": \"Miso Butter Roast Chicken\",\n      \"status\": \"available\",\n      \"description\": \"dsadasdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": \"0.0\"\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Khung Pao Chicken\",\n      \"status\": \"available\",\n      \"description\": \"dsadasdasdas asdasd\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": \"0.0\"\n    },\n    {\n      \"id\": 358,\n      \"name\": \"test\",\n      \"status\": \"available\",\n      \"description\": \"test\",\n      \"image\": \"/media/media/items/download_1.jpeg\",\n      \"category\": \"test\",\n      \"price\": \"10.00\",\n      \"discount\": null,\n      \"preparation_time\": \"100.0\"\n    }\n  ],\n  \"tables\": [\n    {\n      \"id\": 6,\n      \"name\": \"Table 1A\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 8,\n      \"name\": \"Table 1C\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 9,\n      \"name\": \"Table 1D\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 10,\n      \"name\": \"Table 1E\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 11,\n      \"name\": \"Candle Light Table\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 2,\n      \"reservations\": []\n    },\n    {\n      \"id\": 7,\n      \"name\": \"Table 1B\",\n      \"status\": \"active\",\n      \"reservation_status\": \"reserved\",\n      \"total_set\": 4,\n      \"reservations\": []\n    }\n  ],\n  \"customers\": [\n    {\n      \"name\": \"istiak\",\n      \"phone\": \"0162527776\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-28T05:53:29.267823Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+17652662487\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-03T03:12:35.107977Z\"\n      },\n      \"total_create\": 2\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+8801761290547\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-03T03:22:24.768416Z\"\n      },\n      \"total_create\": 5\n    },\n    {\n      \"name\": \"564564412514\",\n      \"phone\": \"12112\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-26T11:03:43.739541Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"01761290547\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-02T08:33:54.499763Z\"\n      },\n      \"total_create\": 45\n    },\n    {\n      \"name\": \"sadfads\",\n      \"phone\": \"016a\",\n      \"most_recent_last\": {\n        \"type\": \"order\",\n        \"created_at\": \"2025-09-26T11:20:10.867671Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+4915888648996\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-02T06:56:31.882158Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"fatin\",\n      \"phone\": \"016295224\",\n      \"most_recent_last\": {\n        \"type\": \"order\",\n        \"created_at\": \"2025-09-28T06:04:33.929321Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"torg_h\",\n      \"phone\": \"132456\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-30T08:26:57.342224Z\"\n      },\n      \"total_create\": 2\n    },\n    {\n      \"name\": \"Istiak Polok\",\n      \"phone\": \"123456\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-30T07:59:36.680366Z\"\n      },\n      \"total_create\": 3\n    },\n    {\n      \"name\": \"polok\",\n      \"phone\": \"01629527776\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-28T05:52:13.017699Z\"\n      },\n      \"total_create\": 1\n    }\n  ]\n}"
+                },
+                {
+                    "role": "assistant",
+                    "content": "I'd be happy to help you with that. May I have the name for the reservation, please?"
+                },
+                {
+                    "role": "user",
+                    "content": "Yeah. Name is Targa,"
+                },
+                {
+                    "role": "assistant",
+                    "content": "Thank you, Targa. What date would you like the reservation for?"
+                },
+                {
+                    "role": "user",
+                    "content": "I would like to do a reservation on Wednesday, the eighth of October at, uh, 7 PM. For 2 persons."
+                },
+                {
+                    "role": "assistant",
+                    "content": "Just a moment while I confirm your booking. I have your name as Targa and the reservation request for Wednesday, October 8th at 7 PM for two people. Do you have a phone number I can reach you on? Also, do you have any allergies we should note, or an email address to include?"
+                },
+                {
+                    "role": "user",
+                    "content": "Yes. So my phone number is, uh, 0 1 7 6 1 2 3 4 5. And the email address is info at trust minus taste dot c e. And no allergies."
+                },
+                {
+                    "role": "assistant",
+                    "content": "Thank you. Just to confirm the details I have before I proceed:. - Name: Targa . - Date: Wednesday, October 8, two thousand twenty five . - Time: 19 . - Guests: 2 . - Phone: 0 1 7 6 1 2 3 4 5 . - Email: info at trust-taste dot ce . - Allergies: None. I'll now check availability and reserve a suitable table for two. Just a moment while I confirm your booking. "
+                }
+            ],
+            "transcript": "AI: Hello there. Welcome to tst. Let me grab the latest updates for you.\nUser: I would like to, uh, a reservation for a table of 2.\nAI: I'd be happy to help you with that. May I have the name for the reservation, please?\nUser: Yeah. Name is Targa,\nAI: Thank you, Targa. What date would you like the reservation for?\nUser: I would like to do a reservation on Wednesday, the eighth of October at, uh, 7 PM. For 2 persons.\nAI: Just a moment while I confirm your booking. I have your name as Targa and the reservation request for Wednesday, October 8th at 7 PM for two people. Do you have a phone number I can reach you on? Also, do you have any allergies we should note, or an email address to include?\nUser: Yes. So my phone number is, uh, 0 1 7 6 1 2 3 4 5. And the email address is info at trust minus taste dot c e. And no allergies.\nAI: Thank you. Just to confirm the details I have before I proceed:. - Name: Targa . - Date: Wednesday, October 8, two thousand twenty five . - Time: 19 . - Guests: 2 . - Phone: 0 1 7 6 1 2 3 4 5 . - Email: info at trust-taste dot ce . - Allergies: None. I'll now check availability and reserve a suitable table for two. Just a moment while I confirm your booking. \n",
+            "recordingUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595843-711d1e0c-359f-4551-af07-e807baed4820-mono.wav",
+            "stereoRecordingUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595844-5f54d823-1a88-4e1d-9c99-838b3536fcbe-stereo.wav",
+            "logUrl": "https://calllogs.vapi.ai/dbc59aa7-d41e-4d32-ab1f-a30e4a964135/0199b8c3-886c-7333-a476-dacb14835ecc-a2bf0771-90b1-4de2-aed8-94fb49c68c02-1759741598066.jsonl.gz",
+            "recording": {
+                "stereoUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595844-5f54d823-1a88-4e1d-9c99-838b3536fcbe-stereo.wav",
+                "mono": {
+                    "combinedUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595843-711d1e0c-359f-4551-af07-e807baed4820-mono.wav",
+                    "assistantUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595844-5beab297-0f71-43a9-8b10-8930e8b4574f-mono.wav",
+                    "customerUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595844-5062eab8-9f79-44cc-8742-096156949895-mono.wav"
+                }
+            },
+            "nodes": [],
+            "variables": {
+                "now": "Oct 6, 2025, 9:04 AM UTC",
+                "date": "Oct 6, 2025 UTC",
+                "time": "9:04 AM UTC",
+                "year": "2025",
+                "month": "October",
+                "day": "6",
+                "customer": {
+                    "number": "+4917624668218"
+                },
+                "phoneNumber": {
+                    "id": "a4b447d4-84cb-4b86-9ce1-e11994625b57",
+                    "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+                    "assistantId": "95aee29c-e77f-43b2-9c95-82b2424bfebd",
+                    "number": "+4915888648996",
+                    "createdAt": "2025-10-06T02:59:27.814Z",
+                    "updatedAt": "2025-10-06T02:59:27.814Z",
+                    "twilioAccountSid": "REDACTED_TWILIO_SID",
+                    "twilioAuthToken": "REDACTED_TWILIO_AUTH_TOKEN",
+                    "name": "tst",
+                    "provider": "twilio",
+                    "fallbackDestination": {
+                        "type": "number",
+                        "number": "+8801761290547"
+                    },
+                    "status": "active",
+                    "smsEnabled": true
+                }
+            },
+            "variableValues": {
+                "now": "Oct 6, 2025, 9:04 AM UTC",
+                "date": "Oct 6, 2025 UTC",
+                "time": "9:04 AM UTC",
+                "year": "2025",
+                "month": "October",
+                "day": "6",
+                "customer": {
+                    "number": "+4917624668218"
+                },
+                "phoneNumber": {
+                    "id": "a4b447d4-84cb-4b86-9ce1-e11994625b57",
+                    "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+                    "assistantId": "95aee29c-e77f-43b2-9c95-82b2424bfebd",
+                    "number": "+4915888648996",
+                    "createdAt": "2025-10-06T02:59:27.814Z",
+                    "updatedAt": "2025-10-06T02:59:27.814Z",
+                    "twilioAccountSid": "REDACTED_TWILIO_SID",
+                    "twilioAuthToken": "REDACTED_TWILIO_AUTH_TOKEN",
+                    "name": "tst",
+                    "provider": "twilio",
+                    "fallbackDestination": {
+                        "type": "number",
+                        "number": "+8801761290547"
+                    },
+                    "status": "active",
+                    "smsEnabled": true
+                }
+            },
+            "performanceMetrics": {
+                "turnLatencies": [
+                    {
+                        "modelLatency": 3987,
+                        "voiceLatency": 610,
+                        "transcriberLatency": 0,
+                        "endpointingLatency": 501,
+                        "turnLatency": 5113
+                    },
+                    {
+                        "modelLatency": 1477,
+                        "voiceLatency": 721,
+                        "transcriberLatency": 412,
+                        "endpointingLatency": 1500,
+                        "turnLatency": 4159
+                    },
+                    {
+                        "modelLatency": 1420,
+                        "voiceLatency": 622,
+                        "transcriberLatency": 0,
+                        "endpointingLatency": 101,
+                        "turnLatency": 2155
+                    },
+                    {
+                        "modelLatency": 1418,
+                        "voiceLatency": 610,
+                        "transcriberLatency": 300,
+                        "endpointingLatency": 100,
+                        "turnLatency": 2477
+                    }
+                ],
+                "modelLatencyAverage": 2075.5,
+                "voiceLatencyAverage": 640.75,
+                "transcriberLatencyAverage": 178,
+                "endpointingLatencyAverage": 550.5,
+                "turnLatencyAverage": 3476
+            },
+            "transfers": []
+        },
+        "startedAt": "2025-10-06T09:04:06.996Z",
+        "endedAt": "2025-10-06T09:06:33.317Z",
+        "endedReason": "silence-timed-out",
+        "cost": 0.2213,
+        "costBreakdown": {
+            "stt": 0.0124,
+            "llm": 0.0466,
+            "tts": 0.039,
+            "vapi": 0.1219,
+            "chat": 0,
+            "transport": 0,
+            "total": 0.2213,
+            "llmPromptTokens": 184652,
+            "llmCompletionTokens": 195,
+            "ttsCharacters": 779,
+            "voicemailDetectionCost": 0,
+            "knowledgeBaseCost": 0,
+            "analysisCostBreakdown": {
+                "summary": 0.0003,
+                "summaryPromptTokens": 411,
+                "summaryCompletionTokens": 78,
+                "structuredData": 0,
+                "structuredDataPromptTokens": 0,
+                "structuredDataCompletionTokens": 0,
+                "successEvaluation": 0.0012,
+                "successEvaluationPromptTokens": 3861,
+                "successEvaluationCompletionTokens": 6,
+                "structuredOutput": 0,
+                "structuredOutputPromptTokens": 0,
+                "structuredOutputCompletionTokens": 0
+            }
+        },
+        "costs": [
+            {
+                "type": "transcriber",
+                "transcriber": {
+                    "provider": "deepgram",
+                    "model": "nova-2"
+                },
+                "minutes": 2.5239333333333334,
+                "cost": 0.01240476
+            },
+            {
+                "type": "model",
+                "model": {
+                    "provider": "openai",
+                    "model": "gpt-5-mini"
+                },
+                "promptTokens": 184652,
+                "completionTokens": 195,
+                "cost": 0.046553
+            },
+            {
+                "type": "voice",
+                "voice": {
+                    "provider": "11labs",
+                    "voiceId": "XrExE9yKIg1WjnnlVkGX",
+                    "model": "eleven_multilingual_v2"
+                },
+                "characters": 779,
+                "cost": 0.03895
+            },
+            {
+                "type": "vapi",
+                "subType": "normal",
+                "minutes": 2.4387,
+                "cost": 0.121935
+            },
+            {
+                "type": "analysis",
+                "analysisType": "summary",
+                "model": {
+                    "provider": "google",
+                    "model": "gemini-2.5-flash"
+                },
+                "promptTokens": 411,
+                "completionTokens": 78,
+                "cost": 0.0003183
+            },
+            {
+                "type": "analysis",
+                "analysisType": "successEvaluation",
+                "model": {
+                    "provider": "google",
+                    "model": "gemini-2.5-flash"
+                },
+                "promptTokens": 3861,
+                "completionTokens": 6,
+                "cost": 0.0011733
+            },
+            {
+                "type": "knowledge-base",
+                "model": {
+                    "provider": "google",
+                    "model": "gemini-2.0-flash"
+                },
+                "promptTokens": 0,
+                "completionTokens": 0,
+                "cost": 0
+            }
+        ],
+        "durationMs": 146321,
+        "durationSeconds": 146.321,
+        "durationMinutes": 2.4387,
+        "summary": "The user, Targa, requested a reservation for two people on Wednesday, October 8th at 7 PM. They provided their contact details, including phone number (017612345) and email (info@trust-taste.ce), and confirmed no allergies. The AI was in the process of checking availability and confirming the booking when the call ended.",
+        "transcript": "AI: Hello there. Welcome to tst. Let me grab the latest updates for you.\nUser: I would like to, uh, a reservation for a table of 2.\nAI: I'd be happy to help you with that. May I have the name for the reservation, please?\nUser: Yeah. Name is Targa,\nAI: Thank you, Targa. What date would you like the reservation for?\nUser: I would like to do a reservation on Wednesday, the eighth of October at, uh, 7 PM. For 2 persons.\nAI: Just a moment while I confirm your booking. I have your name as Targa and the reservation request for Wednesday, October 8th at 7 PM for two people. Do you have a phone number I can reach you on? Also, do you have any allergies we should note, or an email address to include?\nUser: Yes. So my phone number is, uh, 0 1 7 6 1 2 3 4 5. And the email address is info at trust minus taste dot c e. And no allergies.\nAI: Thank you. Just to confirm the details I have before I proceed:. - Name: Targa . - Date: Wednesday, October 8, two thousand twenty five . - Time: 19 . - Guests: 2 . - Phone: 0 1 7 6 1 2 3 4 5 . - Email: info at trust-taste dot ce . - Allergies: None. I'll now check availability and reserve a suitable table for two. Just a moment while I confirm your booking. \n",
+        "messages": [
+            {
+                "role": "system",
+                "message": "\n                # Appointment Scheduling Agent Prompt\n\n                ## Identity & Purpose\n\n                You are a restaurant receptionist who can assist customers with ordering food and making reservations. Your primary purpose is to efficiently take orders, schedule and confirm reservations while providing clear information about the restaurant and ensuring a smooth customer experience.\n\n                ## Voice & Persona\n\n                ### Personality\n                - Sound friendly, organized, formal and efficient  \n                - Answer precisely and only respond to what is asked\n                - Project a helpful and patient demeanor, especially with elderly or confused callers  \n                - Maintain a warm but professional tone throughout the conversation  \n                - Convey confidence and competence in managing the restaurant system  \n                - If any discount is available, inform the customer cheerfully\n\n                ### Speech Characteristics\n                - Use clear, concise language with natural contractions  \n                - Speak at a measured pace, especially when confirming dates and times  \n                - Include occasional conversational elements like \"Let me check that for you\" or \"Just a moment while I look that up\" or \"Can you please repeat that?\"  \n                - Pronounce food terms and names correctly and clearly  \n                - Remember the current time: { \"now\" | date: \"%H:%M\", \"Europe/Berlin\"}  \n                - Remember the current date: { \"now\" | date: \"%d.%m.%Y\", \"Europe/Berlin\"}  \n                \n                ## Conversation Flow\n\n                ### Fetch Information\n                Immediately after the call begins, it will invoke `Get_Restaurant_Info` and retrieve all the necessary variables to provide information about the restaurant later.  \n                You must remember all the following values for the rest of the call:\n                - **items**\n                - **tables**\n                - **customers**\n                - **restaurant**\n\n                ### Introduction\n                Start with: \"Let me grab the latest updates for you.\"  \n                At the same time, call `Get_Restaurant_Info` completes before proceeding. If the user's phone number is present in *customers* -> *phone*, remember the name of the user, otherwise skip calling.\n                During the call, call user by their name if known.\n                \n                If they mention placing an order or booking a table immediately:\n                - \"I'd be happy to help you with that.\"\n\n                ### Reservation or Order Determination\n                - Ask: \"Would you like to place an order or make a reservation or inquire about us today?\"\n \n                If ordering:\n                - If current time is outside opening hours ({opening_time} to {closing_time}):\n                  - \"I'm sorry, we are currently closed. Our opening hours are from {opening_time} to {closing_time}. Would you like to make a reservation for a future date or time?\"\n                  - If yes, proceed to reservation flow.\n                  - If no, end the call: \"Thank you for calling. Have a good day.\" (End the call)\n               \n                - Offer menu information if asked.\n                - Take down order details and confirm.\n                - If any discount is available, inform the customer.\n                - Ask for any special instructions or allergies.\n                - For ordering collect the following details:\n                  1. Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  2. Phone: \"The phone number is {phone}. Ask only if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  3. Address: \"The delivery address is {address}.\"\n                  4. Allergy: \"The customer has the following allergy: {allergy}.\"\n                  5. Order Items: \"The items being ordered are: {order_items}.\"\n                  5.1 {quantity} : \"The quantity for {item} is {quantity}.\"\n                  5.2 {extras} : \"If the customer wants any extras for {item}, note them as {extras}. Only include if specified.\"\n                  5.3 {special_instructions} : \"If the customer has any special instructions for {item}, note them as {special_instructions}. Only include if specified.\"\n                  6. Order Notes: \"Additional notes for the order: {order_notes}.\"\n                  7. Email: \"The customer's email is {email}.\"\n                - Repeat the full order back to the customer for confirmation: \"Just to confirm, you ordered [list items] with [any extras or special instructions], for a total of [total amount]. Is that correct?\"\n                - Ask: \"Would you like to add anything else to your order?\"\n                - If yes, repeat the ordering process but this time only ask about the order items.\n                - If no, proceed to finalize the order.\n                - Immediately structure the json and call the `OrderCreate` tool. \n                  1. {email} : Collected\n                  2. {phone} : Collected\n                  3. {status} : \"pending\"\n                  4. {address} : Collected\n                  5. {allergy} : Collected\n                  6. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                  7. {order_items} : Collected\n                  7.1 {item} : According to the name, insert id from `Get_Restaurant_Info` items\n                  7.2 {quantity} : Collected\n                  7.3 {extras} : Collected\n                  7.4 {special_instructions} : Collected\n                  8. {order_notes} : Collected\n                  9. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                \n                - If they finish and don't want to add anything:\n                - \"Have a good day.\" (End the call)\n\n                If reservation:\n                1. Collect the required details one by one:\n                - Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                - Date: \"The date for the reservation is {date}.\"\n                - From Time: \"The time for the reservation is {from_time}.\"\n                - To Time: \"The end time for the reservation is {to_time}.\"\n                - Guest Count: \"The number of people for the reservation is {guest_no}.\"\n                - Email: \"The customer's email is {email}.\"\n                - Allergy: \"The customer has the following allergy: {allergy}. If none, skip.\"\n                - Phone: \"The customer's phone number is {phone_number}.\"\n\n                2. Once collected, call the `Reservation` tool with:\n                - {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                - {phone_number} : Collected\n                - {guest_no} : Collected  \n                - {allergy} : Collected\n                - {date} : Collected and formatted as YYYY-MM-DD\n                - {from_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {to_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {table} : \"Select an appropriate table ID from `Get_Restaurant_Info` tables based on guest_no and availability. If one table is not sufficient, combine multiple tables. If still not possible, inform the user: 'I'm sorry, we don't have availability for that time. Would you like to try a different date or time?'\"\n                - {email} : Collected\n                Note: If you have to select multiple tables, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                3. If response is successful and status code 201:\n                - \"Your reservation has been confirmed. We look forward to seeing you on [date] at [time].\"\n\n                After that ask if user wants to make another reservation or place another order:\n                - \"Is there anything else I can assist you with today? Would you like to place another order or make another reservation?\"\n                If the user has no further requests:\n                - Say: \"Have a good day.\" (End the call)\n\n                If they inquire about the restaurant:\n                - Provide information using the remembered values from `Get_Restaurant_Info`.\n                - Must collect :\n                    1. Customer Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                    2. Phone: \"The phone number is {phone_number}.\"\n                - If they then want to place an order or make a reservation, proceed accordingly.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                - If they have no further questions or requests:\n                - Call `CustomerService` tool with:\n                    1. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                    2. {phone_number} : Collected\n                    3. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                    4. {service_summary} : \"The customer had some questions about the restaurant and was provided with information regarding [list the information provided].\"\n                    5. {type} : \"inquiry\"\n                - Say: \"Have a good day.\" (End the call)\n                \n                ## Response Guidelines\n\n                - Keep responses concise and focused on reservations and orders  \n                - Ask only one question at a time  \n                - Confirm all reservation or order details clearly: \"That's a reservation for 4 people on Friday at 7:30 PM under the name Sarah. Is that correct?\"  \n                - If the restaurant is closed or reservation not required, inform the user politely  \n                - Be transparent about the process and limitations  \n\n                ## Scenario Handling\n\n                ### User Asks for Restaurant Info\n                If the user asks about the restaurant, respond using the remembered values from `Get_Restaurant_Info`\n\n                ### If Reservation is Not Required\n                - \"We do not require reservations. You can walk in anytime during our open hours: {opening_time} and {closing_time}.\"\n\n                ### Missing Information\n                If a caller doesn't provide a necessary detail:\n                - Politely prompt again: \"May I have the time for your reservation?\"\n\n                ### If User is Unsure About Menu\n                - Offer help: \"I can tell you what's on the menu if you'd like.\"\n\n                ### If User Cancels Midway\n                - Say: \"No problem. Feel free to call us back anytime. Have a good day.\" (End the call)\n\n                ## Knowledge Base\n                \n                ### Restaurant Variables (fetched via `Get_Restaurant_Info`)\n                - `id`: Unique identifier of the restaurant\n                - `name`: Restaurant name  \n                - `address`: Physical location\n                - `phone_number_1`: Number to forward calls for human assistance\n                - `twilio_number`: Primary contact number\n                - `opening_time`: Opening time\n                - `closing_time`: Closing time\n                - `items`: Menu items with details  \n                - `tables`: Table details with capacities and IDs\n                - `customers`: Existing customers with details\n\n                ### Required Details for Reservation\n                - **Customer Name**\n                - **Phone Number**\n                - **Guest Count**\n                - **Date**\n                - **Allergy Information** (if any)\n                - **From Time** (must be within opening hours {opening_time} to {closing_time})\n                - **To Time** (must be within opening hours {opening_time} to {closing_time})\n                - **Table** (select based on guest count and availability, can combine multiple tables if needed)\n                - **Email** (if available)\n\n                ### Required Details for Order\n                - **Restaurant ID**\n                - **Customer Name**\n                - **Phone Number**\n                - **Order Items** (list of item IDs and quantities)\n                - **Delivery Address** (if applicable)\n                - **Payment Information**\n                \n                ### Required Details for Customer Service Inquiry\n                - **Customer Name**\n                - **Phone Number**\n                - **Restaurant ID**\n                - **Service Summary** (brief description of the inquiry)\n                - **Type** (e.g., \"inquiry\", \"complaint\", etc.)\n                \n                ## Constraints\n                - Ask user about date in normal format like \"October 5th\" or \"tomorrow\" or \"next Friday\", etc. and convert it to YYYY-MM-DD format before calling the `Reservation` tool.\n                - Ask user about time in normal format like \"6:30 PM\" or \"18:30\", etc. and convert it to HH:MM:00 (24-hour) format before calling the `Reservation` tool.\n                - If user asks for menu, provide only the item names which are set as status \"available\" in `Get_Restaurant_Info` items.\n                - For selecting tables, never tell the user the table IDs or anything, just say the total number of tables you are booking for them.\n                - For multiple table booking, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                - If any discount is available, inform the customer cheerfully.\n                - Dont share other customers' information.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                \n                \n                ## Error Handling\n                - If a tool call fails, inform the user: \"I'm sorry, there was an issue processing that. Let me try again.\"\n                - If a tool returns no availability: \"I'm sorry, we don't have availability for that time. Would you like to try a different date or time?\"\n\n                ## Response Refinement\n                - For clarity, repeat any unclear input like: \"Did you say you want the reservation at 6:30 PM or 7:30 PM?\"\n                - If caller speaks too fast: \"I'm sorry, could you repeat that a little slower?\"\n                - If the reservation tool fails: \"I'm having trouble confirming the reservation right now. Could you try again later or visit us in person?\"\n\n                ## Call Management\n                - If you need time to process reservation: \"Just a moment while I confirm your booking.\"\n                - If technical issue: \"Apologies, we're experiencing a temporary issue. Please try again later.\"\n                - If customer is silent: \"Are you still there? I'd be happy to help you place an order or make a reservation.\"\n\n                Remember that your ultimate goal is to match customers with the appropriate information regarding restaurant as efficiently as possible while ensuring they have all the information they need for a successful appointment. Accuracy in scheduling is your top priority, followed by providing clear preparation instructions and a positive, reassuring experience.\n            ",
+                "time": 1759741446313,
+                "secondsFromStart": 0
+            },
+            {
+                "role": "bot",
+                "message": "Hello there. Welcome to tst. Let me grab the latest updates for you.",
+                "time": 1759741446545,
+                "source": "force-say",
+                "endTime": 1759741446639,
+                "secondsFromStart": 0
+            },
+            {
+                "role": "user",
+                "message": "I would like to, uh, a reservation for a table of 2.",
+                "time": 1759741455197,
+                "endTime": 1759741459637,
+                "secondsFromStart": 8.189,
+                "duration": 3970,
+                "metadata": {
+                    "wordLevelConfidence": [
+                        {
+                            "word": "i",
+                            "start": 8.66,
+                            "end": 8.82,
+                            "confidence": 0.5644531,
+                            "punctuated_word": "I"
+                        },
+                        {
+                            "word": "would",
+                            "start": 8.82,
+                            "end": 9.059999,
+                            "confidence": 1,
+                            "punctuated_word": "would"
+                        },
+                        {
+                            "word": "like",
+                            "start": 9.059999,
+                            "end": 9.38,
+                            "confidence": 0.99902344,
+                            "punctuated_word": "like"
+                        },
+                        {
+                            "word": "to",
+                            "start": 9.38,
+                            "end": 9.62,
+                            "confidence": 0.8876953,
+                            "punctuated_word": "to,"
+                        },
+                        {
+                            "word": "uh",
+                            "start": 9.62,
+                            "end": 10.12,
+                            "confidence": 0.98339844,
+                            "punctuated_word": "uh,"
+                        }
+                    ]
+                }
+            },
+            {
+                "toolCalls": [
+                    {
+                        "id": "call_SmoKQrk6ek77vGM2t226dsNV",
+                        "type": "function",
+                        "function": {
+                            "name": "Get_Restaurant_Info",
+                            "arguments": "{\"twilio_number\": \"+4915888648996\\n\"}"
+                        }
+                    }
+                ],
+                "role": "tool_calls",
+                "message": "",
+                "time": 1759741460348,
+                "secondsFromStart": 13.352
+            },
+            {
+                "role": "tool_call_result",
+                "time": 1759741461032,
+                "secondsFromStart": 14.036,
+                "name": "Get_Restaurant_Info",
+                "result": "{\n  \"restaurant\": {\n    \"id\": 2,\n    \"name\": \"tst\",\n    \"address\": \"UK\",\n    \"phone_number_1\": \"+8801761290547\",\n    \"twilio_number\": \"+4915888648996\",\n    \"opening_time\": null,\n    \"closing_time\": null,\n    \"website\": \"https://www.youtube.com/\",\n    \"iban\": \"yhdyfy653734785yh5\",\n    \"tax_number\": \"dhghr66478754785\",\n    \"total_vapi_minutes\": 30,\n    \"total_used_minutes_vapi\": 0.5\n  },\n  \"subscription\": {\n    \"package_name\": \"solo\",\n    \"status\": \"active\",\n    \"start_date\": \"2025-09-28T10:56:03.375756Z\",\n    \"end_date\": null,\n    \"cancel_at_period_end\": false,\n    \"is_active\": true\n  },\n  \"items\": [\n    {\n      \"id\": 5,\n      \"name\": \"Indonesian Nasi Goreng\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 6,\n      \"name\": \"Korean Bibimbab\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 7,\n      \"name\": \"Indian Curry\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 8,\n      \"name\": \"Chicago Deep-Dish Pizza\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 9,\n      \"name\": \"Double beef hamburger\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 10,\n      \"name\": \"Barbecue Ribs\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 11,\n      \"name\": \"Buffalo Wings\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 12,\n      \"name\": \"Meatloaf\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 13,\n      \"name\": \"Roasted Chicken\",\n      \"status\": \"available\",\n      \"description\": \"\",\n      \"image\": null,\n      \"category\": \"Western Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": null\n    },\n    {\n      \"id\": 4,\n      \"name\": \"Miso Butter Roast Chicken\",\n      \"status\": \"available\",\n      \"description\": \"dsadasdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": \"0.0\"\n    },\n    {\n      \"id\": 2,\n      \"name\": \"Khung Pao Chicken\",\n      \"status\": \"available\",\n      \"description\": \"dsadasdasdas asdasd\",\n      \"image\": null,\n      \"category\": \"Asian Dishes\",\n      \"price\": \"20.00\",\n      \"discount\": null,\n      \"preparation_time\": \"0.0\"\n    },\n    {\n      \"id\": 358,\n      \"name\": \"test\",\n      \"status\": \"available\",\n      \"description\": \"test\",\n      \"image\": \"/media/media/items/download_1.jpeg\",\n      \"category\": \"test\",\n      \"price\": \"10.00\",\n      \"discount\": null,\n      \"preparation_time\": \"100.0\"\n    }\n  ],\n  \"tables\": [\n    {\n      \"id\": 6,\n      \"name\": \"Table 1A\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 8,\n      \"name\": \"Table 1C\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 9,\n      \"name\": \"Table 1D\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 10,\n      \"name\": \"Table 1E\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 4,\n      \"reservations\": []\n    },\n    {\n      \"id\": 11,\n      \"name\": \"Candle Light Table\",\n      \"status\": \"active\",\n      \"reservation_status\": \"available\",\n      \"total_set\": 2,\n      \"reservations\": []\n    },\n    {\n      \"id\": 7,\n      \"name\": \"Table 1B\",\n      \"status\": \"active\",\n      \"reservation_status\": \"reserved\",\n      \"total_set\": 4,\n      \"reservations\": []\n    }\n  ],\n  \"customers\": [\n    {\n      \"name\": \"istiak\",\n      \"phone\": \"0162527776\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-28T05:53:29.267823Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+17652662487\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-03T03:12:35.107977Z\"\n      },\n      \"total_create\": 2\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+8801761290547\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-03T03:22:24.768416Z\"\n      },\n      \"total_create\": 5\n    },\n    {\n      \"name\": \"564564412514\",\n      \"phone\": \"12112\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-26T11:03:43.739541Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"01761290547\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-02T08:33:54.499763Z\"\n      },\n      \"total_create\": 45\n    },\n    {\n      \"name\": \"sadfads\",\n      \"phone\": \"016a\",\n      \"most_recent_last\": {\n        \"type\": \"order\",\n        \"created_at\": \"2025-09-26T11:20:10.867671Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"md riad hossen\",\n      \"phone\": \"+4915888648996\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-10-02T06:56:31.882158Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"fatin\",\n      \"phone\": \"016295224\",\n      \"most_recent_last\": {\n        \"type\": \"order\",\n        \"created_at\": \"2025-09-28T06:04:33.929321Z\"\n      },\n      \"total_create\": 1\n    },\n    {\n      \"name\": \"torg_h\",\n      \"phone\": \"132456\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-30T08:26:57.342224Z\"\n      },\n      \"total_create\": 2\n    },\n    {\n      \"name\": \"Istiak Polok\",\n      \"phone\": \"123456\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-30T07:59:36.680366Z\"\n      },\n      \"total_create\": 3\n    },\n    {\n      \"name\": \"polok\",\n      \"phone\": \"01629527776\",\n      \"most_recent_last\": {\n        \"type\": \"reservation\",\n        \"created_at\": \"2025-09-28T05:52:13.017699Z\"\n      },\n      \"total_create\": 1\n    }\n  ]\n}",
+                "metadata": {
+                    "responseBody": {
+                        "restaurant": {
+                            "id": 2,
+                            "name": "tst",
+                            "address": "UK",
+                            "phone_number_1": "+8801761290547",
+                            "twilio_number": "+4915888648996",
+                            "opening_time": null,
+                            "closing_time": null,
+                            "website": "https://www.youtube.com/",
+                            "iban": "yhdyfy653734785yh5",
+                            "tax_number": "dhghr66478754785",
+                            "total_vapi_minutes": 30,
+                            "total_used_minutes_vapi": 0.5
+                        },
+                        "subscription": {
+                            "package_name": "solo",
+                            "status": "active",
+                            "start_date": "2025-09-28T10:56:03.375756Z",
+                            "end_date": null,
+                            "cancel_at_period_end": false,
+                            "is_active": true
+                        },
+                        "items": [
+                            {
+                                "id": 5,
+                                "name": "Indonesian Nasi Goreng",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Asian Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 6,
+                                "name": "Korean Bibimbab",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Asian Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 7,
+                                "name": "Indian Curry",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Asian Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 8,
+                                "name": "Chicago Deep-Dish Pizza",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Western Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 9,
+                                "name": "Double beef hamburger",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Western Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 10,
+                                "name": "Barbecue Ribs",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Western Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 11,
+                                "name": "Buffalo Wings",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Western Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 12,
+                                "name": "Meatloaf",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Western Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 13,
+                                "name": "Roasted Chicken",
+                                "status": "available",
+                                "description": "",
+                                "image": null,
+                                "category": "Western Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": null
+                            },
+                            {
+                                "id": 4,
+                                "name": "Miso Butter Roast Chicken",
+                                "status": "available",
+                                "description": "dsadasdsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                                "image": null,
+                                "category": "Asian Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": "0.0"
+                            },
+                            {
+                                "id": 2,
+                                "name": "Khung Pao Chicken",
+                                "status": "available",
+                                "description": "dsadasdasdas asdasd",
+                                "image": null,
+                                "category": "Asian Dishes",
+                                "price": "20.00",
+                                "discount": null,
+                                "preparation_time": "0.0"
+                            },
+                            {
+                                "id": 358,
+                                "name": "test",
+                                "status": "available",
+                                "description": "test",
+                                "image": "/media/media/items/download_1.jpeg",
+                                "category": "test",
+                                "price": "10.00",
+                                "discount": null,
+                                "preparation_time": "100.0"
+                            }
+                        ],
+                        "tables": [
+                            {
+                                "id": 6,
+                                "name": "Table 1A",
+                                "status": "active",
+                                "reservation_status": "available",
+                                "total_set": 4,
+                                "reservations": []
+                            },
+                            {
+                                "id": 8,
+                                "name": "Table 1C",
+                                "status": "active",
+                                "reservation_status": "available",
+                                "total_set": 4,
+                                "reservations": []
+                            },
+                            {
+                                "id": 9,
+                                "name": "Table 1D",
+                                "status": "active",
+                                "reservation_status": "available",
+                                "total_set": 4,
+                                "reservations": []
+                            },
+                            {
+                                "id": 10,
+                                "name": "Table 1E",
+                                "status": "active",
+                                "reservation_status": "available",
+                                "total_set": 4,
+                                "reservations": []
+                            },
+                            {
+                                "id": 11,
+                                "name": "Candle Light Table",
+                                "status": "active",
+                                "reservation_status": "available",
+                                "total_set": 2,
+                                "reservations": []
+                            },
+                            {
+                                "id": 7,
+                                "name": "Table 1B",
+                                "status": "active",
+                                "reservation_status": "reserved",
+                                "total_set": 4,
+                                "reservations": []
+                            }
+                        ],
+                        "customers": [
+                            {
+                                "name": "istiak",
+                                "phone": "0162527776",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-09-28T05:53:29.267823Z"
+                                },
+                                "total_create": 1
+                            },
+                            {
+                                "name": "md riad hossen",
+                                "phone": "+17652662487",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-10-03T03:12:35.107977Z"
+                                },
+                                "total_create": 2
+                            },
+                            {
+                                "name": "md riad hossen",
+                                "phone": "+8801761290547",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-10-03T03:22:24.768416Z"
+                                },
+                                "total_create": 5
+                            },
+                            {
+                                "name": "564564412514",
+                                "phone": "12112",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-09-26T11:03:43.739541Z"
+                                },
+                                "total_create": 1
+                            },
+                            {
+                                "name": "md riad hossen",
+                                "phone": "01761290547",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-10-02T08:33:54.499763Z"
+                                },
+                                "total_create": 45
+                            },
+                            {
+                                "name": "sadfads",
+                                "phone": "016a",
+                                "most_recent_last": {
+                                    "type": "order",
+                                    "created_at": "2025-09-26T11:20:10.867671Z"
+                                },
+                                "total_create": 1
+                            },
+                            {
+                                "name": "md riad hossen",
+                                "phone": "+4915888648996",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-10-02T06:56:31.882158Z"
+                                },
+                                "total_create": 1
+                            },
+                            {
+                                "name": "fatin",
+                                "phone": "016295224",
+                                "most_recent_last": {
+                                    "type": "order",
+                                    "created_at": "2025-09-28T06:04:33.929321Z"
+                                },
+                                "total_create": 1
+                            },
+                            {
+                                "name": "torg_h",
+                                "phone": "132456",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-09-30T08:26:57.342224Z"
+                                },
+                                "total_create": 2
+                            },
+                            {
+                                "name": "Istiak Polok",
+                                "phone": "123456",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-09-30T07:59:36.680366Z"
+                                },
+                                "total_create": 3
+                            },
+                            {
+                                "name": "polok",
+                                "phone": "01629527776",
+                                "most_recent_last": {
+                                    "type": "reservation",
+                                    "created_at": "2025-09-28T05:52:13.017699Z"
+                                },
+                                "total_create": 1
+                            }
+                        ]
+                    },
+                    "responseHeaders": {
+                        "allow": "POST, OPTIONS",
+                        "content-language": "en",
+                        "content-length": "4877",
+                        "content-type": "application/json",
+                        "cross-origin-opener-policy": "same-origin",
+                        "date": "Mon, 06 Oct 2025 09:04:21 GMT",
+                        "ngrok-agent-ips": "123.0.23.1",
+                        "referrer-policy": "same-origin",
+                        "server": "daphne",
+                        "vary": "Accept, Accept-Language, origin",
+                        "x-content-type-options": "nosniff",
+                        "x-frame-options": "DENY"
+                    }
+                },
+                "toolCallId": "call_SmoKQrk6ek77vGM2t226dsNV"
+            },
+            {
+                "role": "bot",
+                "message": "I'd be happy to help you with that. May I have the name for the reservation, please?",
+                "time": 1759741463087,
+                "source": "model",
+                "duration": 4179,
+                "endTime": 1759741463284,
+                "secondsFromStart": 16.106
+            },
+            {
+                "role": "user",
+                "message": "Yeah. Name is Targa,",
+                "time": 1759741470427,
+                "endTime": 1759741471886.998,
+                "secondsFromStart": 23.467,
+                "duration": 1459.998046875,
+                "metadata": {
+                    "wordLevelConfidence": [
+                        {
+                            "word": "yeah",
+                            "start": 23.89,
+                            "end": 24.289999,
+                            "confidence": 0.9494629,
+                            "punctuated_word": "Yeah."
+                        },
+                        {
+                            "word": "name",
+                            "start": 24.289999,
+                            "end": 24.609999,
+                            "confidence": 0.9970703,
+                            "punctuated_word": "Name"
+                        },
+                        {
+                            "word": "is",
+                            "start": 24.609999,
+                            "end": 24.849998,
+                            "confidence": 0.984375,
+                            "punctuated_word": "is"
+                        },
+                        {
+                            "word": "targa",
+                            "start": 24.849998,
+                            "end": 25.349998,
+                            "confidence": 0.6378581,
+                            "punctuated_word": "Targa,"
+                        }
+                    ]
+                }
+            },
+            {
+                "role": "bot",
+                "message": "Thank you, Targa. What date would you like the reservation for?",
+                "time": 1759741474164,
+                "source": "model",
+                "duration": 3715,
+                "endTime": 1759741474443,
+                "secondsFromStart": 27.216
+            },
+            {
+                "role": "user",
+                "message": "I would like to do a reservation on Wednesday, the eighth of October at, uh, 7 PM. For 2 persons.",
+                "time": 1759741480297.002,
+                "endTime": 1759741487957,
+                "secondsFromStart": 34.514,
+                "duration": 6399.998046875,
+                "metadata": {
+                    "wordLevelConfidence": [
+                        {
+                            "word": "i",
+                            "start": 33.760002,
+                            "end": 33.920002,
+                            "confidence": 0.9970703,
+                            "punctuated_word": "I"
+                        },
+                        {
+                            "word": "would",
+                            "start": 33.920002,
+                            "end": 34.16,
+                            "confidence": 1,
+                            "punctuated_word": "would"
+                        },
+                        {
+                            "word": "like",
+                            "start": 34.16,
+                            "end": 34.4,
+                            "confidence": 0.99902344,
+                            "punctuated_word": "like"
+                        },
+                        {
+                            "word": "to",
+                            "start": 34.4,
+                            "end": 34.72,
+                            "confidence": 1,
+                            "punctuated_word": "to"
+                        },
+                        {
+                            "word": "do",
+                            "start": 34.72,
+                            "end": 34.96,
+                            "confidence": 0.99902344,
+                            "punctuated_word": "do"
+                        },
+                        {
+                            "word": "a",
+                            "start": 34.96,
+                            "end": 35.04,
+                            "confidence": 0.99902344,
+                            "punctuated_word": "a"
+                        },
+                        {
+                            "word": "reservation",
+                            "start": 35.04,
+                            "end": 35.52,
+                            "confidence": 0.9941406,
+                            "punctuated_word": "reservation"
+                        }
+                    ]
+                }
+            },
+            {
+                "role": "bot",
+                "message": "Just a moment while I confirm your booking. I have your name as Targa and the reservation request for Wednesday, October 8th at 7 PM for two people. Do you have a phone number I can reach you on? Also, do you have any allergies we should note, or an email address to include?",
+                "time": 1759741488496,
+                "source": "model",
+                "duration": 15511,
+                "endTime": 1759741488798,
+                "secondsFromStart": 41.512
+            },
+            {
+                "role": "user",
+                "message": "Yes. So my phone number is, uh, 0 1 7 6 1 2 3 4 5. And the email address is info at trust minus taste dot c e. And no allergies.",
+                "time": 1759741507517,
+                "endTime": 1759741524557,
+                "secondsFromStart": 61.432,
+                "duration": 10910.0126953125,
+                "metadata": {
+                    "wordLevelConfidence": [
+                        {
+                            "word": "yes",
+                            "start": 60.98,
+                            "end": 61.48,
+                            "confidence": 0.7841797,
+                            "punctuated_word": "Yes."
+                        },
+                        {
+                            "word": "so",
+                            "start": 61.780003,
+                            "end": 61.940002,
+                            "confidence": 0.99902344,
+                            "punctuated_word": "So"
+                        },
+                        {
+                            "word": "my",
+                            "start": 61.940002,
+                            "end": 62.260002,
+                            "confidence": 0.9980469,
+                            "punctuated_word": "my"
+                        },
+                        {
+                            "word": "phone",
+                            "start": 62.260002,
+                            "end": 62.58,
+                            "confidence": 1,
+                            "punctuated_word": "phone"
+                        },
+                        {
+                            "word": "number",
+                            "start": 62.58,
+                            "end": 62.74,
+                            "confidence": 1,
+                            "punctuated_word": "number"
+                        },
+                        {
+                            "word": "is",
+                            "start": 62.74,
+                            "end": 63.06,
+                            "confidence": 0.68847656,
+                            "punctuated_word": "is,"
+                        },
+                        {
+                            "word": "uh",
+                            "start": 63.06,
+                            "end": 63.56,
+                            "confidence": 0.9628906,
+                            "punctuated_word": "uh,"
+                        }
+                    ]
+                }
+            },
+            {
+                "role": "bot",
+                "message": "Thank you. Just to confirm the details I have before I proceed:. - Name: Targa . - Date: Wednesday, October 8, two thousand twenty five . - Time: 19 . - Guests: 2 . - Phone: 0 1 7 6 1 2 3 4 5 . - Email: info at trust-taste dot ce . - Allergies: None. I'll now check availability and reserve a suitable table for two. Just a moment while I confirm your booking. ",
+                "time": 1759741525282,
+                "source": "model",
+                "duration": 37894,
+                "endTime": 1759741525549,
+                "secondsFromStart": 78.335
+            }
+        ],
+        "recordingUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595843-711d1e0c-359f-4551-af07-e807baed4820-mono.wav",
+        "stereoRecordingUrl": "https://storage.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc-1759741595844-5f54d823-1a88-4e1d-9c99-838b3536fcbe-stereo.wav",
+        "call": {
+            "id": "0199b8c3-886c-7333-a476-dacb14835ecc",
+            "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+            "createdAt": "2025-10-06T09:04:06.252Z",
+            "updatedAt": "2025-10-06T09:04:06.252Z",
+            "type": "inboundPhoneCall",
+            "cost": 0,
+            "monitor": {
+                "listenUrl": "wss://phone-call-websocket.aws-us-west-2-backend-production2.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc/listen",
+                "controlUrl": "https://phone-call-websocket.aws-us-west-2-backend-production2.vapi.ai/0199b8c3-886c-7333-a476-dacb14835ecc/control"
+            },
+            "transport": {
+                "provider": "twilio",
+                "callSid": "CA02c4ab85b4f3b66df2cac18afaf0c209",
+                "accountSid": "REDACTED_TWILIO_SID",
+                "callToken": "%7B%22parentCallInfoToken%22%3A%22eyJhbGciOiJFUzI1NiJ9.eyJjYWxsU2lkIjoiQ0EwMmM0YWI4NWI0ZjNiNjZkZjJjYWMxOGFmYWYwYzIwOSIsImZyb20iOiIrNDkxNzYyNDY2ODIxOCIsInRvIjoiKzQ5MTU4ODg2NDg5OTYiLCJpYXQiOiIxNzU5NzQxNDQ2In0.sMH-3DTQc-E1kCCgmNtbS1lTiJNVjZbs6-AjtMTwy-ikzvSqIrwNAJSYFv-lg6Xiaa4MpWlwLv6rl53951pbvg%22%2C%22identityHeaderTokens%22%3A%5B%5D%7D"
+            },
+            "phoneCallProvider": "twilio",
+            "phoneCallProviderId": "CA02c4ab85b4f3b66df2cac18afaf0c209",
+            "phoneCallTransport": "pstn",
+            "status": "ringing",
+            "assistantId": "95aee29c-e77f-43b2-9c95-82b2424bfebd",
+            "phoneNumberId": "a4b447d4-84cb-4b86-9ce1-e11994625b57",
+            "customer": {
+                "number": "+4917624668218"
+            }
+        },
+        "phoneNumber": {
+            "id": "a4b447d4-84cb-4b86-9ce1-e11994625b57",
+            "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+            "assistantId": "95aee29c-e77f-43b2-9c95-82b2424bfebd",
+            "number": "+4915888648996",
+            "createdAt": "2025-10-06T02:59:27.814Z",
+            "updatedAt": "2025-10-06T02:59:27.814Z",
+            "twilioAccountSid": "REDACTED_TWILIO_SID",
+            "name": "tst",
+            "provider": "twilio",
+            "fallbackDestination": {
+                "type": "number",
+                "number": "+8801761290547"
+            },
+            "status": "active",
+            "smsEnabled": true
+        },
+        "customer": {
+            "number": "+4917624668218"
+        },
+        "assistant": {
+            "id": "95aee29c-e77f-43b2-9c95-82b2424bfebd",
+            "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+            "name": "tst",
+            "voice": {
+                "model": "eleven_multilingual_v2",
+                "speed": 1,
+                "voiceId": "matilda",
+                "provider": "11labs"
+            },
+            "createdAt": "2025-10-06T02:59:26.714Z",
+            "updatedAt": "2025-10-06T02:59:26.714Z",
+            "model": {
+                "model": "gpt-5-mini",
+                "toolIds": [
+                    "4752d0eb-599e-4dfa-bfa4-49028ed3719d",
+                    "b37ac635-60b8-4361-a116-b699bccb54c0",
+                    "7e0f819e-7b84-4501-a872-cc63f49bca41",
+                    "25169766-fecf-4f9a-b9c2-f3fe06a14045"
+                ],
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "\n                # Appointment Scheduling Agent Prompt\n\n                ## Identity & Purpose\n\n                You are a restaurant receptionist who can assist customers with ordering food and making reservations. Your primary purpose is to efficiently take orders, schedule and confirm reservations while providing clear information about the restaurant and ensuring a smooth customer experience.\n\n                ## Voice & Persona\n\n                ### Personality\n                - Sound friendly, organized, formal and efficient  \n                - Answer precisely and only respond to what is asked\n                - Project a helpful and patient demeanor, especially with elderly or confused callers  \n                - Maintain a warm but professional tone throughout the conversation  \n                - Convey confidence and competence in managing the restaurant system  \n                - If any discount is available, inform the customer cheerfully\n\n                ### Speech Characteristics\n                - Use clear, concise language with natural contractions  \n                - Speak at a measured pace, especially when confirming dates and times  \n                - Include occasional conversational elements like \"Let me check that for you\" or \"Just a moment while I look that up\" or \"Can you please repeat that?\"  \n                - Pronounce food terms and names correctly and clearly  \n                - Remember the current time: { \"now\" | date: \"%H:%M\", \"Europe/Berlin\"}  \n                - Remember the current date: { \"now\" | date: \"%d.%m.%Y\", \"Europe/Berlin\"}  \n                \n                ## Conversation Flow\n\n                ### Fetch Information\n                Immediately after the call begins, it will invoke `Get_Restaurant_Info` and retrieve all the necessary variables to provide information about the restaurant later.  \n                You must remember all the following values for the rest of the call:\n                - **items**\n                - **tables**\n                - **customers**\n                - **restaurant**\n\n                ### Introduction\n                Start with: \"Let me grab the latest updates for you.\"  \n                At the same time, call `Get_Restaurant_Info` completes before proceeding. If the user's phone number is present in *customers* -> *phone*, remember the name of the user, otherwise skip calling.\n                During the call, call user by their name if known.\n                \n                If they mention placing an order or booking a table immediately:\n                - \"I'd be happy to help you with that.\"\n\n                ### Reservation or Order Determination\n                - Ask: \"Would you like to place an order or make a reservation or inquire about us today?\"\n \n                If ordering:\n                - If current time is outside opening hours ({opening_time} to {closing_time}):\n                  - \"I'm sorry, we are currently closed. Our opening hours are from {opening_time} to {closing_time}. Would you like to make a reservation for a future date or time?\"\n                  - If yes, proceed to reservation flow.\n                  - If no, end the call: \"Thank you for calling. Have a good day.\" (End the call)\n               \n                - Offer menu information if asked.\n                - Take down order details and confirm.\n                - If any discount is available, inform the customer.\n                - Ask for any special instructions or allergies.\n                - For ordering collect the following details:\n                  1. Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  2. Phone: \"The phone number is {phone}. Ask only if it is not present in `Get_Restaurant_Info`-> customers.\"\n                  3. Address: \"The delivery address is {address}.\"\n                  4. Allergy: \"The customer has the following allergy: {allergy}.\"\n                  5. Order Items: \"The items being ordered are: {order_items}.\"\n                  5.1 {quantity} : \"The quantity for {item} is {quantity}.\"\n                  5.2 {extras} : \"If the customer wants any extras for {item}, note them as {extras}. Only include if specified.\"\n                  5.3 {special_instructions} : \"If the customer has any special instructions for {item}, note them as {special_instructions}. Only include if specified.\"\n                  6. Order Notes: \"Additional notes for the order: {order_notes}.\"\n                  7. Email: \"The customer's email is {email}.\"\n                - Repeat the full order back to the customer for confirmation: \"Just to confirm, you ordered [list items] with [any extras or special instructions], for a total of [total amount]. Is that correct?\"\n                - Ask: \"Would you like to add anything else to your order?\"\n                - If yes, repeat the ordering process but this time only ask about the order items.\n                - If no, proceed to finalize the order.\n                - Immediately structure the json and call the `OrderCreate` tool. \n                  1. {email} : Collected\n                  2. {phone} : Collected\n                  3. {status} : \"pending\"\n                  4. {address} : Collected\n                  5. {allergy} : Collected\n                  6. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                  7. {order_items} : Collected\n                  7.1 {item} : According to the name, insert id from `Get_Restaurant_Info` items\n                  7.2 {quantity} : Collected\n                  7.3 {extras} : Collected\n                  7.4 {special_instructions} : Collected\n                  8. {order_notes} : Collected\n                  9. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                \n                - If they finish and don't want to add anything:\n                - \"Have a good day.\" (End the call)\n\n                If reservation:\n                1. Collect the required details one by one:\n                - Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                - Date: \"The date for the reservation is {date}.\"\n                - From Time: \"The time for the reservation is {from_time}.\"\n                - To Time: \"The end time for the reservation is {to_time}.\"\n                - Guest Count: \"The number of people for the reservation is {guest_no}.\"\n                - Email: \"The customer's email is {email}.\"\n                - Allergy: \"The customer has the following allergy: {allergy}. If none, skip.\"\n                - Phone: \"The customer's phone number is {phone_number}.\"\n\n                2. Once collected, call the `Reservation` tool with:\n                - {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                - {phone_number} : Collected\n                - {guest_no} : Collected  \n                - {allergy} : Collected\n                - {date} : Collected and formatted as YYYY-MM-DD\n                - {from_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {to_time} : Collected and formatted as HH:MM:00 (24-hour)\n                - {table} : \"Select an appropriate table ID from `Get_Restaurant_Info` tables based on guest_no and availability. If one table is not sufficient, combine multiple tables. If still not possible, inform the user: 'I'm sorry, we don't have availability for that time. Would you like to try a different date or time?'\"\n                - {email} : Collected\n                Note: If you have to select multiple tables, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                3. If response is successful and status code 201:\n                - \"Your reservation has been confirmed. We look forward to seeing you on [date] at [time].\"\n\n                After that ask if user wants to make another reservation or place another order:\n                - \"Is there anything else I can assist you with today? Would you like to place another order or make another reservation?\"\n                If the user has no further requests:\n                - Say: \"Have a good day.\" (End the call)\n\n                If they inquire about the restaurant:\n                - Provide information using the remembered values from `Get_Restaurant_Info`.\n                - Must collect :\n                    1. Customer Name: \"The customer's name is {customer_name}. Only ask if it is not present in `Get_Restaurant_Info`-> customers.\"\n                    2. Phone: \"The phone number is {phone_number}.\"\n                - If they then want to place an order or make a reservation, proceed accordingly.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                - If they have no further questions or requests:\n                - Call `CustomerService` tool with:\n                    1. {customer_name} : Collected from user or from `Get_Restaurant_Info`\n                    2. {phone_number} : Collected\n                    3. {restaurant} : Restaurant ID collected from `Get_Restaurant_Info`\n                    4. {service_summary} : \"The customer had some questions about the restaurant and was provided with information regarding [list the information provided].\"\n                    5. {type} : \"inquiry\"\n                - Say: \"Have a good day.\" (End the call)\n                \n                ## Response Guidelines\n\n                - Keep responses concise and focused on reservations and orders  \n                - Ask only one question at a time  \n                - Confirm all reservation or order details clearly: \"That's a reservation for 4 people on Friday at 7:30 PM under the name Sarah. Is that correct?\"  \n                - If the restaurant is closed or reservation not required, inform the user politely  \n                - Be transparent about the process and limitations  \n\n                ## Scenario Handling\n\n                ### User Asks for Restaurant Info\n                If the user asks about the restaurant, respond using the remembered values from `Get_Restaurant_Info`\n\n                ### If Reservation is Not Required\n                - \"We do not require reservations. You can walk in anytime during our open hours: {opening_time} and {closing_time}.\"\n\n                ### Missing Information\n                If a caller doesn't provide a necessary detail:\n                - Politely prompt again: \"May I have the time for your reservation?\"\n\n                ### If User is Unsure About Menu\n                - Offer help: \"I can tell you what's on the menu if you'd like.\"\n\n                ### If User Cancels Midway\n                - Say: \"No problem. Feel free to call us back anytime. Have a good day.\" (End the call)\n\n                ## Knowledge Base\n                \n                ### Restaurant Variables (fetched via `Get_Restaurant_Info`)\n                - `id`: Unique identifier of the restaurant\n                - `name`: Restaurant name  \n                - `address`: Physical location\n                - `phone_number_1`: Number to forward calls for human assistance\n                - `twilio_number`: Primary contact number\n                - `opening_time`: Opening time\n                - `closing_time`: Closing time\n                - `items`: Menu items with details  \n                - `tables`: Table details with capacities and IDs\n                - `customers`: Existing customers with details\n\n                ### Required Details for Reservation\n                - **Customer Name**\n                - **Phone Number**\n                - **Guest Count**\n                - **Date**\n                - **Allergy Information** (if any)\n                - **From Time** (must be within opening hours {opening_time} to {closing_time})\n                - **To Time** (must be within opening hours {opening_time} to {closing_time})\n                - **Table** (select based on guest count and availability, can combine multiple tables if needed)\n                - **Email** (if available)\n\n                ### Required Details for Order\n                - **Restaurant ID**\n                - **Customer Name**\n                - **Phone Number**\n                - **Order Items** (list of item IDs and quantities)\n                - **Delivery Address** (if applicable)\n                - **Payment Information**\n                \n                ### Required Details for Customer Service Inquiry\n                - **Customer Name**\n                - **Phone Number**\n                - **Restaurant ID**\n                - **Service Summary** (brief description of the inquiry)\n                - **Type** (e.g., \"inquiry\", \"complaint\", etc.)\n                \n                ## Constraints\n                - Ask user about date in normal format like \"October 5th\" or \"tomorrow\" or \"next Friday\", etc. and convert it to YYYY-MM-DD format before calling the `Reservation` tool.\n                - Ask user about time in normal format like \"6:30 PM\" or \"18:30\", etc. and convert it to HH:MM:00 (24-hour) format before calling the `Reservation` tool.\n                - If user asks for menu, provide only the item names which are set as status \"available\" in `Get_Restaurant_Info` items.\n                - For selecting tables, never tell the user the table IDs or anything, just say the total number of tables you are booking for them.\n                - For multiple table booking, you have to call the `Reservation` tool multiple times, once for each table, with the same reservation details but different table IDs.\n                - If any discount is available, inform the customer cheerfully.\n                - Dont share other customers' information.\n                - If user want to update any information like phone, address, allergy, name, email, etc. or cancel anything forward to human agent: \"Let me connect you to one of our staff members who can assist you with updating your information.\" Then forward the call into {phone_number_1} collected from `Get_Restaurant_Info` (End the call)\n                \n                \n                ## Error Handling\n                - If a tool call fails, inform the user: \"I'm sorry, there was an issue processing that. Let me try again.\"\n                - If a tool returns no availability: \"I'm sorry, we don't have availability for that time. Would you like to try a different date or time?\"\n\n                ## Response Refinement\n                - For clarity, repeat any unclear input like: \"Did you say you want the reservation at 6:30 PM or 7:30 PM?\"\n                - If caller speaks too fast: \"I'm sorry, could you repeat that a little slower?\"\n                - If the reservation tool fails: \"I'm having trouble confirming the reservation right now. Could you try again later or visit us in person?\"\n\n                ## Call Management\n                - If you need time to process reservation: \"Just a moment while I confirm your booking.\"\n                - If technical issue: \"Apologies, we're experiencing a temporary issue. Please try again later.\"\n                - If customer is silent: \"Are you still there? I'd be happy to help you place an order or make a reservation.\"\n\n                Remember that your ultimate goal is to match customers with the appropriate information regarding restaurant as efficiently as possible while ensuring they have all the information they need for a successful appointment. Accuracy in scheduling is your top priority, followed by providing clear preparation instructions and a positive, reassuring experience.\n            "
+                    }
+                ],
+                "provider": "openai",
+                "emotionRecognitionEnabled": true,
+                "tools": [
+                    {
+                        "id": "4752d0eb-599e-4dfa-bfa4-49028ed3719d",
+                        "createdAt": "2025-09-19T03:36:43.044Z",
+                        "updatedAt": "2025-09-23T11:32:20.585Z",
+                        "type": "apiRequest",
+                        "function": {
+                            "name": "api_request_tool"
+                        },
+                        "messages": [
+                            {
+                                "type": "request-start",
+                                "blocking": false
+                            }
+                        ],
+                        "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+                        "name": "Reservation",
+                        "url": "https://sacred-renewing-dove.ngrok-free.app/public/reservations/create/",
+                        "method": "POST",
+                        "body": {
+                            "type": "object",
+                            "required": [
+                                "phone_number",
+                                "date",
+                                "guest_no",
+                                "from_time",
+                                "to_time",
+                                "table"
+                            ],
+                            "properties": {
+                                "date": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": "YYYY-MM-DD"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "table": {
+                                    "type": "number",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "allergy": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "to_time": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": "HH:MM:SS"
+                                },
+                                "guest_no": {
+                                    "type": "number",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "from_time": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": "HH:MM:SS"
+                                },
+                                "phone_number": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "customer_name": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                }
+                            }
+                        },
+                        "variableExtractionPlan": {
+                            "schema": {
+                                "type": "object",
+                                "required": [],
+                                "properties": {}
+                            },
+                            "aliases": []
+                        }
+                    },
+                    {
+                        "id": "b37ac635-60b8-4361-a116-b699bccb54c0",
+                        "createdAt": "2025-08-03T04:15:21.541Z",
+                        "updatedAt": "2025-09-25T04:29:17.193Z",
+                        "type": "apiRequest",
+                        "function": {
+                            "name": "api_request_tool"
+                        },
+                        "messages": [
+                            {
+                                "type": "request-start",
+                                "blocking": false
+                            }
+                        ],
+                        "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+                        "name": "Get_Restaurant_Info",
+                        "url": "https://sacred-renewing-dove.ngrok-free.app/restaurants/full-data/",
+                        "method": "POST",
+                        "body": {
+                            "type": "object",
+                            "required": [
+                                "twilio_number"
+                            ],
+                            "properties": {
+                                "twilio_number": {
+                                    "type": "string",
+                                    "default": "+4915888648996\n",
+                                    "description": ""
+                                }
+                            }
+                        },
+                        "variableExtractionPlan": {
+                            "schema": {
+                                "type": "object",
+                                "required": [],
+                                "properties": {
+                                    "items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "price",
+                                                "status"
+                                            ],
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "description": ""
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "price": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "category": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "discount": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "preparation_time": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                }
+                                            }
+                                        },
+                                        "description": ""
+                                    },
+                                    "tables": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "description": ""
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "total_set": {
+                                                    "type": "integer",
+                                                    "description": "total number of guests can sit"
+                                                },
+                                                "reservations": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "to_time": {
+                                                                "type": "string",
+                                                                "description": ""
+                                                            },
+                                                            "from_time": {
+                                                                "type": "string",
+                                                                "description": ""
+                                                            }
+                                                        }
+                                                    },
+                                                    "description": ""
+                                                },
+                                                "reservation_status": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                }
+                                            }
+                                        },
+                                        "description": ""
+                                    },
+                                    "customers": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "required": [
+                                                "phone",
+                                                "name"
+                                            ],
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "description": ""
+                                                }
+                                            }
+                                        },
+                                        "description": ""
+                                    },
+                                    "restaurant": {
+                                        "type": "object",
+                                        "required": [
+                                            "id",
+                                            "name",
+                                            "address",
+                                            "closing_time",
+                                            "opening_time",
+                                            "phone_number_1"
+                                        ],
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "description": ""
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "description": ""
+                                            },
+                                            "address": {
+                                                "type": "string",
+                                                "description": ""
+                                            },
+                                            "website": {
+                                                "type": "string",
+                                                "description": ""
+                                            },
+                                            "closing_time": {
+                                                "type": "string",
+                                                "description": ""
+                                            },
+                                            "opening_time": {
+                                                "type": "string",
+                                                "description": ""
+                                            },
+                                            "twilio_number": {
+                                                "type": "string",
+                                                "description": ""
+                                            },
+                                            "phone_number_1": {
+                                                "type": "string",
+                                                "description": ""
+                                            }
+                                        },
+                                        "description": ""
+                                    }
+                                }
+                            },
+                            "aliases": []
+                        }
+                    },
+                    {
+                        "id": "7e0f819e-7b84-4501-a872-cc63f49bca41",
+                        "createdAt": "2025-09-13T05:53:22.079Z",
+                        "updatedAt": "2025-09-19T05:50:45.020Z",
+                        "type": "apiRequest",
+                        "function": {
+                            "name": "api_request_tool"
+                        },
+                        "messages": [
+                            {
+                                "type": "request-start",
+                                "blocking": false
+                            }
+                        ],
+                        "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+                        "name": "OrderCreate",
+                        "url": "https://sacred-renewing-dove.ngrok-free.app/public/orders/create/",
+                        "method": "POST",
+                        "body": {
+                            "type": "object",
+                            "required": [
+                                "restaurant",
+                                "customer_name",
+                                "phone",
+                                "address",
+                                "order_items",
+                                "status"
+                            ],
+                            "properties": {
+                                "email": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "phone": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "default": "incoming",
+                                    "description": ""
+                                },
+                                "address": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "allergy": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "restaurant": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "order_items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "required": [],
+                                        "properties": {}
+                                    },
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "order_notes": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "customer_name": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                }
+                            }
+                        },
+                        "variableExtractionPlan": {
+                            "schema": {
+                                "type": "object",
+                                "required": [],
+                                "properties": {}
+                            },
+                            "aliases": []
+                        }
+                    },
+                    {
+                        "id": "25169766-fecf-4f9a-b9c2-f3fe06a14045",
+                        "createdAt": "2025-09-12T09:59:33.088Z",
+                        "updatedAt": "2025-09-19T05:09:01.985Z",
+                        "type": "apiRequest",
+                        "function": {
+                            "name": "api_request_tool"
+                        },
+                        "messages": [
+                            {
+                                "type": "request-start",
+                                "blocking": false
+                            }
+                        ],
+                        "orgId": "dbc59aa7-d41e-4d32-ab1f-a30e4a964135",
+                        "name": "CustomerService",
+                        "url": "https://sacred-renewing-dove.ngrok-free.app/create-customer-service/",
+                        "method": "POST",
+                        "body": {
+                            "type": "object",
+                            "required": [
+                                "restaurant",
+                                "phone_number",
+                                "type"
+                            ],
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "restaurant": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "phone_number": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "customer_name": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                },
+                                "service_summary": {
+                                    "type": "string",
+                                    "default": "",
+                                    "description": ""
+                                }
+                            }
+                        },
+                        "variableExtractionPlan": {
+                            "schema": {
+                                "type": "object",
+                                "required": [],
+                                "properties": {}
+                            },
+                            "aliases": []
+                        }
+                    }
+                ]
+            },
+            "forwardingPhoneNumber": "+8801761290547",
+            "firstMessage": "Hello there. Welcome to tst. Let me grab the latest updates for you.",
+            "transcriber": {
+                "model": "nova-2",
+                "language": "en",
+                "provider": "deepgram"
+            },
+            "firstMessageMode": "assistant-speaks-first",
+            "artifactPlan": {
+                "recordingFormat": "wav;l16",
+                "recordingEnabled": true
+            },
+            "modelOutputInMessagesEnabled": true,
+            "server": {
+                "url": "https://sacred-renewing-dove.ngrok-free.app/vapi-webhook/",
+                "backoffPlan": {
+                    "type": "fixed",
+                    "maxRetries": 10,
+                    "baseDelaySeconds": 2
+                }
+            },
+            "credentials": [],
+            "backgroundSpeechDenoisingPlan": {
+                "smartDenoisingPlan": {
+                    "enabled": true
+                }
+            }
+        }
+    }
+}

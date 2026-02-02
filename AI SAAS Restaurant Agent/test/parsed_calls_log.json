@@ -1,0 +1,11 @@
+{
+    "status": "parsed",
+    "call_date_utc": "2025-08-12",
+    "duration_seconds": 88.768,
+    "summary": "The user successfully made a reservation for three people under the name Miss Amindo for August 13th at 5 PM. The AI confirmed the booking and noted the provided phone number. The call concluded with the reservation confirmed and no special requests.",
+    "recording": {
+        "mono": {
+            "combinedUrl": "https://storage.vapi.ai/SECRET-CHANGED-FOR-SECURITY-REASONS.wav"
+        }
+    }
+}
